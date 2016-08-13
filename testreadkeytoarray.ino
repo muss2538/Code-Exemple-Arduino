@@ -13,24 +13,24 @@ LiquidCrystal_I2C Lcd(0x3F,20,4);
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( Lcd, KEYS, 4, 4, A1, 4700, 1000 );
 //OnewireKeypad <Print, 12 > KP2(Serial, KEYS, 4, 3, A0, 4700, 1000 );
 
-int countarray=0;
-int datearray[8];
+int countarray = 0;
+char datearray[] = "00000000";
 
 void setup (){
   Serial.begin(9600);
-  lcd.begin();
-  lcd.noBacklight(); //tune off led
+  Lcd.begin();
+  Lcd.backlight(); //tune off led
 }
 
 void loop(){
-  int key = keypad.getKey();
-  if (key != NO_KEY){
-    lcd.print(key);
-    datearray[countarray] = key
-    countarray++;
-    if (countarray==9){
-      lcd.clear();
-      countarray=0;
-    }
-  }
+
+  if (KP.Getkey() != NO_KEY){
+    Lcd.print(KP.Getkey());
+    datearray[countarray] = KP.Getkey();
+    countarray++;}
+    delay(250);
+    
+    if (countarray == 9){
+      Lcd.clear();
+      countarray=0;}
 }
