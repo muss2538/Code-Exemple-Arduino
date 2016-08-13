@@ -27,10 +27,11 @@ void loop(){
   if (KP.Getkey() != NO_KEY){
     Lcd.print(KP.Getkey());
     datearray[countarray] = KP.Getkey();
-    countarray++;}
+    countarray++;
     delay(250);
     
-    if (countarray == 9){
+    if (countarray == 8){
       Lcd.clear();
       countarray=0;}
+}
 }
