@@ -33,6 +33,10 @@ void setup() {
   Wire.begin();
   rtc.begin();
   lcd.begin();
+  
+  String test=datearray;
+  Serial.print(test);
+  
   scale.set_scale(calibration_factor); 
   scale.set_offset(zero_factor);
 }
