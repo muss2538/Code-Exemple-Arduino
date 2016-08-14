@@ -71,6 +71,8 @@ void SetDate() {
   lcd.clear();
 }
 void SetTime() {
+  lcd.clear();
+  delay(1000);
   lcd.setCursor(0, 0);      lcd.print("***Set Time***");
   lcd.setCursor(0, 1);      lcd.print("Form HH:MM:SS");
   if (KP.Getkey() != NO_KEY){
@@ -89,19 +91,50 @@ void SetTime() {
       byte i=9; counttimearray=0;
     }
   }
-
-
-
 }
 void SetManyShrimp() {
-  
+  lcd.clear();
+  delay(1000);
+  lcd.setCursor(0, 0);
+  lcd.print("***Many Shrimp***");
+  if (KP.Getkey() != NO_KEY){
+    lcd.setCursor(i, 2);    
+    lcd.print(KP.Getkey());
+    timearray[counttimearray] = KP.Getkey();
+    counttimearray++;i++;
+    delay(150);
+    if (counttimearray == 6){
+      lcd.clear();
+      delay(1000);
+      lcd.setCursor(6, 1); 
+      lcd.print("Time Saving")
+      delay(2000);
+      lcd.clear();
+      byte i=9; counttimearray=0;
+    }
+  }
 }
 void SetVolume() {
   lcd.clear();
+  delay(1000);
   lcd.setCursor(0, 0);
   lcd.print("***SetVolume***");
-  
-
+  if (KP.Getkey() != NO_KEY){
+    lcd.setCursor(i, 2);    
+    lcd.print(KP.Getkey());
+    timearray[counttimearray] = KP.Getkey();
+    counttimearray++;i++;
+    delay(150);
+    if (counttimearray == 6){
+      lcd.clear();
+      delay(1000);
+      lcd.setCursor(6, 1); 
+      lcd.print("Time Saving")
+      delay(2000);
+      lcd.clear();
+      byte i=9; counttimearray=0;
+    }
+  }
 }
 /*****************************************************************************************************************************/
 void setup() {
