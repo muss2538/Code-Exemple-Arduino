@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include "RTClib.h"
+#include "HX711.h"
 #include <LiquidCrystal_I2C.h>
 #include <OnewireKeypad.h>
 
@@ -9,11 +10,26 @@ char timearray[] = "000000";
 byte counttimearray = 0;
 byte statemenu = 0;
 byte slectmenu = 1;
+byte i=9;
+
+float calibration_factor =99757.00; 
+#define zero_factor 8573573
+#define DOUT  A3
+#define CLK   A2
+#define DEC_POINT  2
+
+float offset=0;
+float get_units_kg();
+
+HX711 scale(DOUT, CLK);
 
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
 
+float get_units_kg() {
+  return(scale.get_units()*0.453592);
+}
 void into() {
   DateTime now = rtc.now();
   lcd.setCursor(0, 1);
@@ -49,19 +65,29 @@ void menu() {
     }
 }
 void SetDate() {
-  
+  int dd=now.day();  int mm=now.month();  int yyyy=now.year();
+  lcd.setCursor(0, 0);
+  lcd.print("Saving Date");
+  lcd.setCursor(0, 2);
+  lcd.print("  Date = "); lcd.print(dd, DEC); lcd.print('/'); lcd.print(mm, DEC); lcd.print('/'); lcd.print(yyyy, DEC);
 }
 void SetTime() {
-  lcd.setCursor(0, 0); lcd.print("***Set Time***");
-  lcd.setCursor(0, 1); lcd.print("Form HH:MM:SS");
+  lcd.setCursor(0, 0);      lcd.print("***Set Time***");
+  lcd.setCursor(0, 1);      lcd.print("Form HH:MM:SS");
   if (KP.Getkey() != NO_KEY){
+    lcd.setCursor(i, 2);    
     lcd.print(KP.Getkey());
     timearray[counttimearray] = KP.Getkey();
-    counttimearray++;
+    counttimearray++;i++;
     delay(150);
     if (counttimearray == 6){
       lcd.clear();
-      counttimearray=0;
+      delay(1000);
+      lcd.setCursor(6, 1); 
+      lcd.print("Time Saving")
+      delay(2000);
+      lcd.clear();
+      byte i=9; counttimearray=0;
     }
   }
 
@@ -75,7 +101,7 @@ void SetVolume() {
 
 }
 
-/************************************************************************************/
+/*****************************************************************************************************************************/
 
 void setup() {
   Serial.begin(9600);
@@ -83,8 +109,11 @@ void setup() {
   Wire.begin();
   rtc.begin();
   lcd.clear();
+  scale.set_scale(calibration_factor); 
+  scale.set_offset(zero_factor);
 }
 void loop() {
+  String data = String(get_units_kg()+offset, DEC_POINT);
 start:
   statemenu = 0;
   into();
