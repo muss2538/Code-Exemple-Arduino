@@ -26,6 +26,7 @@ float get_units_kg()
 {
   return(scale.get_units()*0.453592);
 }
+
 /************************************************************************************************************************************/
 
 void setup() {
@@ -54,44 +55,42 @@ void loop() {
 
   
   while(statemenu == 0){
-  if(Serial.available()){
-    lcd.clear();
-    char key = Serial.read();
-      switch(key){
-        case 'A' :
-          statemenu = 0;
-          lcd.clear();
-          lcd.setCursor(0,0);
-          lcd.print("Menu");
-          lcd.setCursor(0,1);
-          lcd.print(">> Set time");
-          lcd.setCursor(0,2);
-          lcd.print("   Set many shrimp");
-          break;
-        case 'B' :
-          statemenu = 0;
-          lcd.clear();
-          lcd.setCursor(0,0);
-          lcd.print("Menu");
-          lcd.setCursor(0,1);
-          lcd.print("   Set time");
-          lcd.setCursor(0,2);
-          lcd.print(">> Set many shrimp");
-          break;
-        case 'C' :
-          statemenu = 1;
-          Serial.println("OK");
-          break;      
-        case 'D' :
-          statemenu = 1;
-          Serial.println("Exit");
-          break;  
-        default:
-          if(statemenu == 1){
-          }
-          break;
-      
+    if(Serial.available()){
+      lcd.clear();
+      char key = Serial.read();
+        switch(key){
+          case 'A' :
+            statemenu = 0;
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("Menu");
+            lcd.setCursor(0,1);
+            lcd.print(">> Set time");
+            lcd.setCursor(0,2);
+            lcd.print("   Set many shrimp");
+            break;
+          case 'B' :
+            statemenu = 0;
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("Menu");
+            lcd.setCursor(0,1);
+            lcd.print("   Set time");
+            lcd.setCursor(0,2);
+            lcd.print(">> Set many shrimp");
+            break;
+          case 'C' :
+            statemenu = 1;
+            Serial.println("OK");
+            break;      
+          case 'D' :
+            statemenu = 1;
+            Serial.println("Exit");
+            break;  
+          default:
+            if(statemenu == 1){}
+            break;
+        }
     }
-  }
   }
 }
