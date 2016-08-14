@@ -103,7 +103,7 @@ void SetManyShrimp() {
     timearray[counttimearray] = KP.Getkey();
     counttimearray++;i++;
     delay(150);
-    if (counttimearray == 6){
+    if (counttimearray == 4){
       lcd.clear();
       delay(1000);
       lcd.setCursor(6, 1); 
@@ -125,7 +125,7 @@ void SetVolume() {
     timearray[counttimearray] = KP.Getkey();
     counttimearray++;i++;
     delay(150);
-    if (counttimearray == 6){
+    if (counttimearray == 3){
       lcd.clear();
       delay(1000);
       lcd.setCursor(6, 1); 
