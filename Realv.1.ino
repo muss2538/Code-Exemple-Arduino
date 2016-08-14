@@ -2,11 +2,9 @@
 #include "RTClib.h"
 #include <LiquidCrystal_I2C.h>
 #include <OnewireKeypad.h>
-
 char KEYS[]= {'1','2','3','A','4','5','6','B','7','8','9','C','*','0','#','D'};
 byte statemenu = 0;
 byte slectmenu = 1;
-
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
@@ -19,9 +17,14 @@ void into(){
   lcd.print("  Date = ");lcd.print(now.day(), DEC);lcd.print('/');lcd.print(now.month(), DEC);lcd.print('/');lcd.print(now.year(), DEC);
   delay(900);
 }
-
 void menu(){
   char fnmenu = KP.Getkey();
+  if(fnmenu=='A')slectmenu++;  //UP
+  if(fnmenu=='B')slectmenu--;  //Down
+  if(fnmenu=='C');{            //Enter Menu
+  
+  }
+  if(fnmenu=='D');statemenu=0; //Exit Menu
   if(slectmenu==1){
     lcd.setCursor(0,0);    lcd.print("Menu");
     lcd.setCursor(0,1);    lcd.print(">> Set Time");
@@ -42,28 +45,15 @@ void menu(){
   }
 }
 
-void fnmenu(){
-  if(fnmenu=='A')slectmenu++;  //UP
-  if(fnmenu=='B')slectmenu--;  //Down
-  if(fnmenu=='C');{            //Enter Menu
-  
-  }
-  if(fnmenu=='D');statemenu=0; //Exit Menu
-  
-}
-
 void MenuSettingTime(){
-  
-}
 
+}
 void SetManyShrimp(){
   
 }
-
 void SetVolume(){
   
 }
-
 
 /************************************************************************************/
 
@@ -73,7 +63,6 @@ void setup() {
   Wire.begin();
   rtc.begin();
 }
-
 void loop() {
   into();
   char keymenu = KP.Getkey();
@@ -81,7 +70,7 @@ void loop() {
   Serial.println(statemenu);
   
   while(statemenu == 1){
-    
+    menu();
   
   }
 }
