@@ -5,22 +5,17 @@
 #include <OnewireKeypad.h>
 
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
-char datearray[] = "00000000";
-char timearray[] = "000000";
-byte counttimearray = 0;
-byte statemenu = 0;
-byte slectmenu = 1;
-byte i=9;
+int ManyShrimp = 0;             int Volume = 0;
+char datearray[] = "00000000";  char timearray[] = "000000";
+byte counttimearray = 0;        byte statemenu = 0;
+byte slectmenu = 1;             byte i=9;
 
 float calibration_factor =99757.00; 
 #define zero_factor 8573573
 #define DOUT  A3
 #define CLK   A2
 #define DEC_POINT  2
-
-float offset=0;
-float get_units_kg();
-
+float offset=0;                 float get_units_kg();
 HX711 scale(DOUT, CLK);
 
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
@@ -65,11 +60,15 @@ void menu() {
     }
 }
 void SetDate() {
+  lcd.clear();
+  delay(1000);
   int dd=now.day();  int mm=now.month();  int yyyy=now.year();
   lcd.setCursor(0, 0);
   lcd.print("Saving Date");
   lcd.setCursor(0, 2);
   lcd.print("  Date = "); lcd.print(dd, DEC); lcd.print('/'); lcd.print(mm, DEC); lcd.print('/'); lcd.print(yyyy, DEC);
+  delay(5000);
+  lcd.clear();
 }
 void SetTime() {
   lcd.setCursor(0, 0);      lcd.print("***Set Time***");
@@ -95,14 +94,16 @@ void SetTime() {
 
 }
 void SetManyShrimp() {
-
+  
 }
 void SetVolume() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("***SetVolume***");
+  
 
 }
-
 /*****************************************************************************************************************************/
-
 void setup() {
   Serial.begin(9600);
   lcd.begin();
