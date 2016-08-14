@@ -17,36 +17,11 @@ void into(){
   lcd.print("  Date = ");lcd.print(now.day(), DEC);lcd.print('/');lcd.print(now.month(), DEC);lcd.print('/');lcd.print(now.year(), DEC);
   delay(900);
 }
-void menu(){
-  char fnmenu = KP.Getkey();
-  if(fnmenu=='A')slectmenu++;  //UP
-  if(fnmenu=='B')slectmenu--;  //Down
-  if(fnmenu=='C');{            //Enter Menu
+
+void SetTime(){
+  lcd.setCursor(0,1); lcd.print(">> Set Time"); lcd.setCursor(0,1); lcd.print(">> Set Time");
   
-  }
-  if(fnmenu=='D');statemenu=0; //Exit Menu
-  if(slectmenu==1){
-    lcd.setCursor(0,0);    lcd.print("Menu");
-    lcd.setCursor(0,1);    lcd.print(">> Set Time");
-    lcd.setCursor(0,2);    lcd.print("   Set Many Shrimp");
-    lcd.setCursor(0,3);    lcd.print("   Set Volume");
-  }
-  if(slectmenu==2){
-    lcd.setCursor(0,0);    lcd.print("Menu");
-    lcd.setCursor(0,1);    lcd.print("   Set Time");
-    lcd.setCursor(0,2);    lcd.print(">> Set Many Shrimp");
-    lcd.setCursor(0,3);    lcd.print("   Set Volume");
-  }
-  if(slectmenu==3){
-    lcd.setCursor(0,0);    lcd.print("Menu");
-    lcd.setCursor(0,1);    lcd.print("   Set Time");
-    lcd.setCursor(0,2);    lcd.print("   Set Many Shrimp");
-    lcd.setCursor(0,3);    lcd.print(">> Set Volume");
-  }
-}
-
-void MenuSettingTime(){
-
+  
 }
 void SetManyShrimp(){
   
@@ -62,15 +37,43 @@ void setup() {
   lcd.begin();
   Wire.begin();
   rtc.begin();
+  lcd.clear();
 }
-void loop() {
+void loop(){
+start:  
+  statemenu=0;
   into();
   char keymenu = KP.Getkey();
-  if(keymenu == 'A')statemenu=1;
-  Serial.println(statemenu);
+  if(keymenu == 'A'){slectmenu=1;statemenu=1;lcd.clear();}
   
-  while(statemenu == 1){
-    menu();
+  while(statemenu==1){
+    delay(250);
+    char fnmenu = KP.Getkey();
+    if(fnmenu=='A')slectmenu--;  //UP
+    if(fnmenu=='B')slectmenu++;  //Down
+    if(fnmenu=='C'){}            //Enter Menu
+    if(fnmenu=='D'){lcd.clear();goto start;} //Exit Menu
+    
+    if(slectmenu==1){
+      lcd.setCursor(0,0);    lcd.print("Menu");
+      lcd.setCursor(0,1);    lcd.print(">> Set Time");
+      lcd.setCursor(0,2);    lcd.print("   Set Many Shrimp");
+      lcd.setCursor(0,3);    lcd.print("   Set Volume");
+    }
+    if(slectmenu==2){
+      lcd.setCursor(0,0);    lcd.print("Menu");
+      lcd.setCursor(0,1);    lcd.print("   Set Time");
+      lcd.setCursor(0,2);    lcd.print(">> Set Many Shrimp");
+      lcd.setCursor(0,3);    lcd.print("   Set Volume");
+    }
+    if(slectmenu==3){
+      lcd.setCursor(0,0);    lcd.print("Menu");
+      lcd.setCursor(0,1);    lcd.print("   Set Time");
+      lcd.setCursor(0,2);    lcd.print("   Set Many Shrimp");
+      lcd.setCursor(0,3);    lcd.print(">> Set Volume");
+    }
+    statemenu=1;
+    
   
   }
 }
