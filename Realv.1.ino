@@ -64,10 +64,10 @@ void distime() {
   lcd.print("Time = ");lcd.print(ho);lcd.print(":");lcd.print(mi);lcd.print(":");lcd.print(se);
 }
 void dismany() {
-  
+  lcd.print();
 }<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 void disvolume() {
-  
+  lcd.print();
 }<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 void menu() {
   if (slectmenu == 1) {
