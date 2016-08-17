@@ -7,7 +7,12 @@
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
 int ManyShrimp = 0; 
 int Volume = 0;
-int dday;mmonth;yyear;ho;mi;se;
+int dday = 0;
+int mmonth = 0;
+int yyear = 0;
+int ho = 0;
+int mi = 0;
+int se = 0;
 char timearray[] = "000000";
 byte counttimearray = 0;
 byte statemenu = 0;
@@ -50,7 +55,12 @@ void distime() {
   ho =(timearray[0]*10)+timearray[1];
   mi =(timearray[2]*10)+timearray[3];
   se =(timearray[4]*10)+timearray[5];
-  lcd.print("Time = ");lcd.print(ho, DEC);lcd.print(':');lcd.print(mi, DEC);lcd.print('');lcd.print(se, DEC);
+  lcd.print("Time = ");
+  lcd.print(ho);
+  lcd.print(":");
+  lcd.print(mi);
+  lcd.print(":");
+  lcd.print(se);
 }
 void menu() {
   if (slectmenu == 1) {
@@ -192,7 +202,7 @@ start:
   //End Loop Checking
   }
 
-   if (keymenu == '#') {//Loop Setup #
+  if (keymenu == '#') {//Loop Setup #
     slectmenu = 1;
     statemenu = 1;
     lcd.clear();delay(1000);
