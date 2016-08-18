@@ -14,9 +14,9 @@ int ho = 0;
 int mi = 0;
 int se = 0;
 
-char timearray[] = "000000";
-char manyarray[] = "0000";
-char volumearray[] = "0000";
+int timearray[] = {0,0,0,0,0,0};
+int manyarray[] = {0,0,0,0};
+int volumearray[] = {0,0,0,0};
 byte counttimearray = 0;
 byte countmanyarray = 0;
 byte countvolumearray = 0;
@@ -56,7 +56,7 @@ void into() {
 }
 
 void disdate() {
-  lcd.print("  Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);
+  lcd.print("Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);
 }
 void distime() {
   ho =(timearray[0]*10)+timearray[1];
@@ -66,11 +66,11 @@ void distime() {
 }
 void dismany() {
   ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);
-  lcd.print(ManyShrimp);
+  lcd.print("many = ");lcd.print(ManyShrimp);
 }
 void disvolume() {
   Volume =((volumearray[0]*1000)+(volumearray[1]*100)+(volumearray[2]*10)+volumearray[3]);
-  lcd.print(Volume);
+  lcd.print("Vol. = ")lcd.print(Volume);lcd.print(" gram")
 }
 void menu() {
   if (slectmenu == 1) {
@@ -197,7 +197,7 @@ start:
       lcd.setCursor(0,0);       disdate();
       lcd.setCursor(0,1);       distime();
       lcd.setCursor(0,2);       dismany();
-      lcd.setCursor(0,3);       disvolume());
+      lcd.setCursor(0,3);       disvolume();
       
       char fnmenu = KP.Getkey();
       if (fnmenu == 'D') {
@@ -212,18 +212,18 @@ start:
   if (keymenu == '#') {//Loop Setup #
     slectmenu = 1;
     statemenu = 1;
-    lcd.clear();delay(1000);
+    openmenu();
     while (statemenu == 1) {
       Serial.println("Loop Setup");
+      menu();
       delay(250);
       char fnmenu = KP.Getkey();
+      
       if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
         slectmenu--;
-        menu();
       }
       if ((fnmenu == 'B')&&(slectmenu!=4)){   //Down
         slectmenu++; 
-        menu();
       }
       if (fnmenu == 'C') {//Enter Menu
         
