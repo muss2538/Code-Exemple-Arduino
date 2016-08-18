@@ -15,8 +15,8 @@ int mi = 0;
 int se = 0;
 
 char timearray[] = "000000";
-char manyarray[] = "000000";
-char volumearray[] = "000000";
+char manyarray[] = "0000";
+char volumearray[] = "0000";
 byte counttimearray = 0;
 byte countmanyarray = 0;
 byte countvolumearray = 0;
@@ -64,6 +64,7 @@ void distime() {
   lcd.print("Time = ");lcd.print(ho);lcd.print(":");lcd.print(mi);lcd.print(":");lcd.print(se);
 }
 void dismany() {
+  ManyShrimp =manyarray[]
   lcd.print();
 }<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 void disvolume() {
@@ -94,7 +95,7 @@ void menu() {
     lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");
     lcd.setCursor(0, 3);    lcd.print(">> Set Volume");
     }
-}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+}
 void MenuSetDate() {
   openmenu();
   DateTime now = rtc.now();
@@ -133,14 +134,14 @@ void MenuSetManyShrimp() {
   if (KP.Getkey() != NO_KEY){
     lcd.setCursor(i, 2);    
     lcd.print(KP.Getkey());
-    timearray[countmanyarray] = KP.Getkey();
+    manyarray[countmanyarray] = KP.Getkey();
     countmanyarray++;i++;
     delay(150);
-    if (counttimearray == 4){
+    if (countmanyarray == 4){
       openmenu();
       lcd.setCursor(6, 1); 
       lcd.print("Saving ...");
-      byte i=9; counttimearray=0;
+      byte i=9; countmanyarray=0;
       closemenu();
     }
   }
@@ -193,7 +194,7 @@ start:
       openmenu();
       lcd.setCursor(0,0);       disdate();
       lcd.setCursor(0,1);       distime();
-      lcd.setCursor(0,2);       lcd.print(ManyShrimp);
+      lcd.setCursor(0,2);       dismany
       lcd.setCursor(0,3);       lcd.print(Volume);
       
       char fnmenu = KP.Getkey();
