@@ -168,6 +168,13 @@ void MenuSetVolume() {
     }
   }
 }
+void En() {MenuSetTime()
+  if (slectmenu == 1) {MenuSetDate();}
+  if (slectmenu == 2) {MenuSetTime();}
+  if (slectmenu == 3) {MenuSetManyShrimp();}
+  if (slectmenu == 4) {MenuSetVolume();}
+}
+
 /*****************************************************************************************************************************/
 void setup() {
   Serial.begin(9600);
@@ -191,7 +198,7 @@ start:
   
   if (keymenu == '*') {//Loop Checking *
     statemenu = 1;
-    lcd.clear();delay(1000);
+    openmenu();
     while (statemenu == 1) {
       Serial.println("Loop Checking");
       lcd.setCursor(0,0);       disdate();
@@ -208,8 +215,8 @@ start:
     }
   //End Loop Checking
   }
-
   if (keymenu == '#') {//Loop Setup #
+ReEn:
     slectmenu = 1;
     statemenu = 1;
     openmenu();
@@ -226,7 +233,8 @@ start:
         slectmenu++; 
       }
       if (fnmenu == 'C') {//Enter Menu
-        
+        En();
+        goto ReEn;
       }        
       if (fnmenu == 'D') {
         lcd.clear();  //Exit Menu
