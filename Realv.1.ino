@@ -54,6 +54,7 @@ void into() {
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
   delay(900);
 }
+
 void disdate() {
   lcd.print("  Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);
 }
@@ -64,12 +65,13 @@ void distime() {
   lcd.print("Time = ");lcd.print(ho);lcd.print(":");lcd.print(mi);lcd.print(":");lcd.print(se);
 }
 void dismany() {
-  ManyShrimp =manyarray[]
-  lcd.print();
-}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);
+  lcd.print(ManyShrimp);
+}
 void disvolume() {
-  lcd.print();
-}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  Volume =((volumearray[0]*1000)+(volumearray[1]*100)+(volumearray[2]*10)+volumearray[3]);
+  lcd.print(Volume);
+}
 void menu() {
   if (slectmenu == 1) {
     lcd.setCursor(0, 0);    lcd.print(">> Set Date");
@@ -96,6 +98,7 @@ void menu() {
     lcd.setCursor(0, 3);    lcd.print(">> Set Volume");
     }
 }
+
 void MenuSetDate() {
   openmenu();
   DateTime now = rtc.now();
@@ -145,7 +148,7 @@ void MenuSetManyShrimp() {
       closemenu();
     }
   }
-}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+}
 void MenuSetVolume() {
   openmenu();
   lcd.setCursor(0, 0);
@@ -153,18 +156,18 @@ void MenuSetVolume() {
   if (KP.Getkey() != NO_KEY){
     lcd.setCursor(i, 2);    
     lcd.print(KP.Getkey());
-    timearray[counttimearray] = KP.Getkey();
-    counttimearray++;i++;
+    volumearray[countvolumearray] = KP.Getkey();
+    countvolumearray++;i++;
     delay(150);
-    if (counttimearray == 3){
+    if (countvolumearray == 3){
       openmenu();
       lcd.setCursor(6, 1); 
       lcd.print("Saving ...");
-      byte i=9; counttimearray=0;
+      byte i=9; countvolumearray=0;
       closemenu();
     }
   }
-}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+}
 /*****************************************************************************************************************************/
 void setup() {
   Serial.begin(9600);
@@ -191,11 +194,10 @@ start:
     lcd.clear();delay(1000);
     while (statemenu == 1) {
       Serial.println("Loop Checking");
-      openmenu();
       lcd.setCursor(0,0);       disdate();
       lcd.setCursor(0,1);       distime();
-      lcd.setCursor(0,2);       dismany
-      lcd.setCursor(0,3);       lcd.print(Volume);
+      lcd.setCursor(0,2);       dismany();
+      lcd.setCursor(0,3);       disvolume());
       
       char fnmenu = KP.Getkey();
       if (fnmenu == 'D') {
