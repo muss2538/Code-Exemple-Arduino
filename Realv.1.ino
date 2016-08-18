@@ -14,9 +14,9 @@ int ho = 0;
 int mi = 0;
 int se = 0;
 
-int timearray[] = {0,0,0,0,0,0};
-int manyarray[] = {0,0,0,0};
-int volumearray[] = {0,0,0,0};
+int timearray[] = {1,8,0,0,0,0};
+int manyarray[] = {1,0,0,0};
+int volumearray[] = {0,5,0,0};
 byte counttimearray = 0;
 byte countmanyarray = 0;
 byte countvolumearray = 0;
@@ -66,11 +66,11 @@ void distime() {
 }
 void dismany() {
   ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);
-  lcd.print("many = ");lcd.print(ManyShrimp);
+  lcd.print("Many = ");lcd.print(ManyShrimp);
 }
 void disvolume() {
   Volume =((volumearray[0]*1000)+(volumearray[1]*100)+(volumearray[2]*10)+volumearray[3]);
-  lcd.print("Vol. = ")lcd.print(Volume);lcd.print(" gram")
+  lcd.print("Vol. = ");lcd.print(Volume);lcd.print(" Gram");
 }
 void menu() {
   if (slectmenu == 1) {
