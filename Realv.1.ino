@@ -16,7 +16,7 @@ int se = 0;
 
 int timearray[] = {1,8,0,0,0,0};
 int manyarray[] = {1,0,0,0};
-int volumearray[] = {0,5,0,0};
+int volumearray[] = {5,0,0};
 byte counttimearray = 0;
 byte countmanyarray = 0;
 byte countvolumearray = 0;
@@ -111,62 +111,60 @@ void MenuSetDate() {
 }
 void MenuSetTime() {
   openmenu();
-  lcd.setCursor(0, 0);      lcd.print("***Set Time***");
-  lcd.setCursor(0, 1);      lcd.print("Form HH:MM:SS");
-  if (KP.Getkey() != NO_KEY){
-    lcd.setCursor(i, 2);    
-    lcd.print(KP.Getkey());
-    timearray[counttimearray] = KP.Getkey();
-    counttimearray++;i++;
-    delay(150);
-    if (counttimearray == 6){
-      openmenu();
-      lcd.setCursor(0, 0); 
-      lcd.print("Time Saving");
-      lcd.setCursor(6, 1); 
-      distime();
-      byte i=9; counttimearray=0;
-      closemenu();
+  while(counttimearray < 6) {
+    lcd.setCursor(0, 0);      lcd.print("***Set Time***");
+    lcd.setCursor(0, 1);      lcd.print("Form HH:MM:SS");
+    if (KP.Getkey() != NO_KEY){
+      lcd.setCursor(i, 2);    
+      lcd.print(KP.Getkey());
+      timearray[counttimearray] = KP.Getkey();
+      counttimearray++;i++;
+      delay(150);
     }
   }
+  openmenu();
+  lcd.setCursor(0, 0); 
+  lcd.print("Time Saving");
+  lcd.setCursor(6, 1); 
+  distime();
+  i=9; counttimearray=0;
+  closemenu();
 }
 void MenuSetManyShrimp() {
   openmenu();
-  lcd.setCursor(0, 0);
-  lcd.print("***Many Shrimp***");
-  if (KP.Getkey() != NO_KEY){
-    lcd.setCursor(i, 2);    
-    lcd.print(KP.Getkey());
-    manyarray[countmanyarray] = KP.Getkey();
-    countmanyarray++;i++;
-    delay(150);
-    if (countmanyarray == 4){
-      openmenu();
-      lcd.setCursor(6, 1); 
-      lcd.print("Saving ...");
-      byte i=9; countmanyarray=0;
-      closemenu();
-    }
+  lcd.setCursor(0, 0);  lcd.print("***Many Shrimp***");
+  while(countmanyarray < 4) {
+    if (KP.Getkey() != NO_KEY){
+      lcd.setCursor(i, 2);    
+      lcd.print(KP.Getkey());
+      manyarray[countmanyarray] = KP.Getkey();
+      countmanyarray++;i++;
+      delay(150);
+    }  
   }
+  openmenu();
+  lcd.setCursor(6, 1); 
+  lcd.print("Saving ...");
+  i=9; countmanyarray=0;
+  closemenu();
 }
 void MenuSetVolume() {
   openmenu();
-  lcd.setCursor(0, 0);
-  lcd.print("***SetVolume***");
-  if (KP.Getkey() != NO_KEY){
-    lcd.setCursor(i, 2);    
-    lcd.print(KP.Getkey());
-    volumearray[countvolumearray] = KP.Getkey();
-    countvolumearray++;i++;
-    delay(150);
-    if (countvolumearray == 3){
-      openmenu();
-      lcd.setCursor(6, 1); 
-      lcd.print("Saving ...");
-      byte i=9; countvolumearray=0;
-      closemenu();
+  lcd.setCursor(0, 0);  lcd.print("***SetVolume***");
+  while(countvolumearray < 3){
+    if (KP.Getkey() != NO_KEY){
+      lcd.setCursor(i, 2);    
+      lcd.print(KP.Getkey());
+      volumearray[countvolumearray] = KP.Getkey();
+      countvolumearray++;i++;
+      delay(150);
     }
   }
+  openmenu();
+  lcd.setCursor(6, 1); 
+  lcd.print("Saving ...");
+  byte i=9; countvolumearray=0;
+  closemenu();
 }
 void En() {MenuSetTime()
   if (slectmenu == 1) {MenuSetDate();}
