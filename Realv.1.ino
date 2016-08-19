@@ -163,7 +163,7 @@ void MenuSetVolume() {
   openmenu();
   lcd.setCursor(6, 1); 
   lcd.print("Saving ...");
-  byte i=9; countvolumearray=0;
+  i=9; countvolumearray=0;
   closemenu();
 }
 void En() {MenuSetTime()
