@@ -48,11 +48,12 @@ void closemenu() {
 }
 void into() {
   DateTime now = rtc.now();
+  
   lcd.setCursor(0, 1);
   lcd.print("  Time = "); lcd.print(now.hour(), DEC); lcd.print(':'); lcd.print(now.minute(), DEC); lcd.print(':'); lcd.print(now.second(), DEC); lcd.print(" ");
   lcd.setCursor(0, 2);
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
-  delay(900);
+  delay(500);
 }
 
 void disdate() {
@@ -169,6 +170,13 @@ void EnterMenu() {
   if (slectmenu == 4) {MenuSetVolume();}
 }
 
+void ActiveC(){
+  DateTime now = rtc.now();
+  if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
+    digitalWrite(13,1);
+    delay(2000);
+  }
+}
 /*****************************************************************************************************************************/
 void setup() {
   Serial.begin(9600);
@@ -176,7 +184,8 @@ void setup() {
   Wire.begin();
   rtc.begin();
   lcd.print("Deivce Power ON");
-  Serial.println("Deivce Power ON");
+  pinMode(13,OUTPUT);
+  digitalWrite(13,0);
   closemenu();
   //scale.set_scale(calibration_factor); 
   //scale.set_offset(zero_factor);
@@ -189,6 +198,7 @@ start:
   statemenu = 0;
   into();
   char keymenu = KP.Getkey();
+  ActiveC();
   
   if (keymenu == '*') {//Loop Checking *
     statemenu = 1;
