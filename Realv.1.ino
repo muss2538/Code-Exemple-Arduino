@@ -69,7 +69,7 @@ void dismany() {
   lcd.print("Many = ");lcd.print(ManyShrimp);
 }
 void disvolume() {
-  Volume =((volumearray[0]*1000)+(volumearray[1]*100)+(volumearray[2]*10)+volumearray[3]);
+  Volume =((volumearray[0]*100)+(volumearray[1]*10)+volumearray[2]);
   lcd.print("Vol. = ");lcd.print(Volume);lcd.print(" Gram");
 }
 void menu() {
@@ -166,7 +166,7 @@ void MenuSetVolume() {
   i=9; countvolumearray=0;
   closemenu();
 }
-void En() {MenuSetTime()
+void EnterMenu() {
   if (slectmenu == 1) {MenuSetDate();}
   if (slectmenu == 2) {MenuSetTime();}
   if (slectmenu == 3) {MenuSetManyShrimp();}
@@ -231,7 +231,7 @@ ReEn:
         slectmenu++; 
       }
       if (fnmenu == 'C') {//Enter Menu
-        En();
+        EnterMenu();
         goto ReEn;
       }        
       if (fnmenu == 'D') {
