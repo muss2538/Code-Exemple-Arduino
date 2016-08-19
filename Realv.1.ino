@@ -5,16 +5,16 @@
 #include <OnewireKeypad.h>
 
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
-int ManyShrimp = 0; 
-int Volume = 0;
-int dday = 0;
-int mmonth = 0;
-int yyear = 0;
-int ho = 0;
-int mi = 0;
-int se = 0;
+unsigned int ManyShrimp = 0; 
+unsigned int Volume = 0;
+unsigned int dday = 0;
+unsigned int mmonth = 0;
+unsigned int yyear = 0;
+unsigned int ho = 0;
+unsigned int mi = 0;
+unsigned int se = 0;
 
-int timearray[] = {1,8,0,0,0,0};
+int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
 int volumearray[] = {5,0,0};
 byte counttimearray = 0;
@@ -23,7 +23,7 @@ byte countvolumearray = 0;
 
 byte statemenu = 0;
 byte slectmenu = 1;
-byte i=9;
+byte i=0;
 
 //float calibration_factor =99757.00; 
 //#define zero_factor 8573573
@@ -44,7 +44,7 @@ void openmenu() {
   lcd.clear(); delay(1000);
 }
 void closemenu() {
-  delay(5000);lcd.clear();
+  delay(3500);lcd.clear();
 }
 void into() {
   DateTime now = rtc.now();
@@ -103,10 +103,8 @@ void MenuSetDate() {
   openmenu();
   DateTime now = rtc.now();
   dday=now.day();  mmonth=now.month();  yyear=now.year();
-  lcd.setCursor(0, 0);
-  lcd.print("Saving Date");
-  lcd.setCursor(0, 2);
-  disdate();
+  lcd.setCursor(0, 0);  lcd.print("Saving Date...");
+  lcd.setCursor(0, 2);  disdate();
   closemenu();
 }
 void MenuSetTime() {
@@ -117,17 +115,15 @@ void MenuSetTime() {
     if (KP.Getkey() != NO_KEY){
       lcd.setCursor(i, 2);    
       lcd.print(KP.Getkey());
-      timearray[counttimearray] = KP.Getkey();
+      timearray[counttimearray] = KP.Getkey()-'0';
       counttimearray++;i++;
-      delay(150);
+      delay(250);
     }
   }
   openmenu();
-  lcd.setCursor(0, 0); 
-  lcd.print("Time Saving");
-  lcd.setCursor(6, 1); 
-  distime();
-  i=9; counttimearray=0;
+  lcd.setCursor(0, 0);   lcd.print("Time Saving...");
+  lcd.setCursor(0, 2);   distime();
+  i=0; counttimearray=0;
   closemenu();
 }
 void MenuSetManyShrimp() {
@@ -137,15 +133,15 @@ void MenuSetManyShrimp() {
     if (KP.Getkey() != NO_KEY){
       lcd.setCursor(i, 2);    
       lcd.print(KP.Getkey());
-      manyarray[countmanyarray] = KP.Getkey();
+      manyarray[countmanyarray] = KP.Getkey()-'0';
       countmanyarray++;i++;
-      delay(150);
+      delay(250);
     }  
   }
   openmenu();
-  lcd.setCursor(6, 1); 
-  lcd.print("Saving ...");
-  i=9; countmanyarray=0;
+  lcd.setCursor(0, 0);   lcd.print("Many Saving...");
+  lcd.setCursor(0, 2);   dismany();
+  i=0; countmanyarray=0;
   closemenu();
 }
 void MenuSetVolume() {
@@ -155,15 +151,15 @@ void MenuSetVolume() {
     if (KP.Getkey() != NO_KEY){
       lcd.setCursor(i, 2);    
       lcd.print(KP.Getkey());
-      volumearray[countvolumearray] = KP.Getkey();
+      volumearray[countvolumearray] = KP.Getkey()-'0';
       countvolumearray++;i++;
-      delay(150);
+      delay(250);
     }
   }
   openmenu();
-  lcd.setCursor(6, 1); 
-  lcd.print("Saving ...");
-  i=9; countvolumearray=0;
+  lcd.setCursor(0, 1);  lcd.print("Volume Saving...");
+  lcd.setCursor(0, 2);   disvolume();
+  i=0; countvolumearray=0;
   closemenu();
 }
 void EnterMenu() {
@@ -221,7 +217,7 @@ ReEn:
     while (statemenu == 1) {
       Serial.println("Loop Setup");
       menu();
-      delay(250);
+      delay(200);
       char fnmenu = KP.Getkey();
       
       if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
