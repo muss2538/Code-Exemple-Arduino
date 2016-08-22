@@ -1,6 +1,6 @@
 #include <Wire.h>
 #include "RTClib.h"
-//#include "HX711.h"
+#include "HX711.h"
 #include <LiquidCrystal_I2C.h>
 #include <OnewireKeypad.h>
 
@@ -25,21 +25,21 @@ byte statemenu = 0;
 byte slectmenu = 1;
 byte i=0;
 
-//float calibration_factor =99757.00; 
-//#define zero_factor 8573573
-//#define DOUT  A3
-//#define CLK   A2
-//#define DEC_POINT  2
+float calibration_factor =99757.00; 
+#define zero_factor 8573573
+#define DOUT  A3
+#define CLK   A2
+#define DEC_POINT  2
 float offset=0;                 float get_units_kg();
-//HX711 scale(DOUT, CLK);
+HX711 scale(DOUT, CLK);
 
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
 
-//float get_units_kg() {
-//  return(scale.get_units()*0.453592);
-//}
+float get_units_kg() {
+  return(scale.get_units()*0.453592);
+}
 void openmenu() {
   lcd.clear(); delay(1000);
 }
@@ -173,7 +173,9 @@ void EnterMenu() {
 void ActiveC(){
   DateTime now = rtc.now();
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    digitalWrite(13,1);
+    //Solenoidopen
+    String dataB = String(get_units_kg()+offset, DEC_POINT);
+    int dataA = 1000*(dataB.toFloat());
     delay(2000);
   }
 }
@@ -187,12 +189,12 @@ void setup() {
   pinMode(13,OUTPUT);
   digitalWrite(13,0);
   closemenu();
-  //scale.set_scale(calibration_factor); 
-  //scale.set_offset(zero_factor);
+  scale.set_scale(calibration_factor); 
+  scale.set_offset(zero_factor);
 }
 void loop() {
   Serial.println("Loop intro");
-  //String data = String(get_units_kg()+offset, DEC_POINT);
+  
   
 start:
   statemenu = 0;
