@@ -13,6 +13,8 @@ unsigned int yyear = 0;
 unsigned int ho = 0;
 unsigned int mi = 0;
 unsigned int se = 0;
+int dataA;
+String dataB;
 
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
@@ -173,10 +175,27 @@ void EnterMenu() {
 void ActiveC(){
   DateTime now = rtc.now();
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    //Solenoidopen
-    String dataB = String(get_units_kg()+offset, DEC_POINT);
-    int dataA = 1000*(dataB.toFloat());
-    delay(2000);
+    openmenu();
+    SolenoidAopen
+    
+    dataB = String(get_units_kg()+offset, DEC_POINT);
+    dataA = 1000*(dataB.toFloat());
+    lcd.setCursor(0, 2);  lcd.print("Volume Set = "); lcd.print(Volume);
+    lcd.setCursor(0, 1);  lcd.print(">>  Volume = "); lcd.print(dataA);
+    
+    if(dataA >= Volume){
+      SolenoidAclose
+      motorstart
+      SolenoidBopen
+      
+      dataB = String(get_units_kg()+offset, DEC_POINT);
+      dataA = 1000*(dataB.toFloat());
+      if(dataA <= 20){
+        delay(2000);
+        SolenoidBclose
+        motorstop
+      }
+    }
   }
 }
 /*****************************************************************************************************************************/
