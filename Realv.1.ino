@@ -1,3 +1,4 @@
+#include <EEPROM>
 #include <Wire.h>
 #include "RTClib.h"
 #include "HX711.h"
@@ -106,6 +107,7 @@ void MenuSetDate() {
   openmenu();
   DateTime now = rtc.now();
   dday=now.day();  mmonth=now.month();  yyear=now.year();
+  
   lcd.setCursor(0, 0);  lcd.print("Saving Date...");
   lcd.setCursor(0, 2);  disdate();
   closemenu();
@@ -172,7 +174,7 @@ void EnterMenu() {
   if (slectmenu == 4) {MenuSetVolume();}
 }
 
-void ActiveC(){
+void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
     openmenu();
