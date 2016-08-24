@@ -40,7 +40,18 @@ HX711 scale(DOUT, CLK);
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
-
+void StartOn() {
+  ho = EEPROM.read(0);
+  mi = EEPROM.read(1);
+  se = EEPROM.read(2);
+  
+  //dday = EEPROM.read(3);
+  //mmonth = EEPROM.read(4);
+  //yyear = EEPROM.read(0);  
+  
+  //ManyShrimp = EEPROM.read(3); 
+  //Volume = EEPROM.read(0);
+}
 float get_units_kg() {return(scale.get_units()*0.453592);}
 void openmenu() {lcd.clear(); delay(1000);}
 void closemenu() {delay(1500);lcd.clear();}
@@ -57,12 +68,16 @@ void into() {
 void disdate() {
   lcd.print("Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);
 }
-void distime() {
+void datatime(){
   ho =(timearray[0]*10)+timearray[1];
   mi =(timearray[2]*10)+timearray[3];
   se =(timearray[4]*10)+timearray[5];
-  EEPROM.write(0,ho);EEPROM.write(1,mi);EEPROM.write(2,se);
+}
+void distime() {
   lcd.print("Time = ");lcd.print(ho);lcd.print(":");lcd.print(mi);lcd.print(":");lcd.print(se);
+}
+void xxx(){
+  EEPROM.write(0,ho);EEPROM.write(1,mi);EEPROM.write(2,se);
 }
 void dismany() {
   ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);
@@ -121,8 +136,10 @@ void MenuSetTime() {
     }
   }
   openmenu();
+  datatime();
   lcd.setCursor(0, 2);   distime();
   lcd.setCursor(0, 0);   lcd.print("Time Saving");loadmenu();
+  xxx();
   i=0; counttimearray=0;
   closemenu();
 }
@@ -197,18 +214,7 @@ void ActiveC() {
       }
     }
 }
-void StartOn() {
-  ho = EEPROM.read(0);
-  mi = EEPROM.read(1);
-  se = EEPROM.read(2);
-  
-  dday = EEPROM.read(3);
-  mmonth = EEPROM.read(4);
-  yyear = EEPROM.read(0);  
-  
-  ManyShrimp = EEPROM.read(3); 
-  Volume = EEPROM.read(0);
-}
+
 void motorpwm() {
   if((pwmd8>=0)&&(j==0)) {pwmd8++;if(pwmd8==255){j=1;}}
   if((pwmd8<=255)&&(j==1)) {pwmd8--;if(pwmd8==0){j=0;}}
@@ -216,9 +222,10 @@ void motorpwm() {
 }
 /*****************************************************************************************************************************/
 void setup() {
+  Serial.begin(9600);
   lcd.begin();Wire.begin();rtc.begin();
   lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
-  lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmeu();
+  lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmenu();
   closemenu();
   scale.set_scale(calibration_factor); 
   scale.set_offset(zero_factor);
@@ -243,6 +250,9 @@ start:
       lcd.setCursor(0,1);       distime();
       lcd.setCursor(0,2);       dismany();
       lcd.setCursor(0,3);       disvolume();
+      Serial.print(EEPROM.read(0));
+      Serial.print(EEPROM.read(1));
+      Serial.println(EEPROM.read(2));
       char fnmenu = KP.Getkey();
       if (fnmenu == 'D') {
         lcd.clear();  //Exit Menu
