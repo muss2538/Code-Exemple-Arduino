@@ -41,18 +41,10 @@ LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
 
-float get_units_kg() {
-  return(scale.get_units()*0.453592);
-}
-void openmenu() {
-  lcd.clear(); delay(1000);
-}
-void closemenu() {
-  delay(1500);lcd.clear();
-}
-void loadmenu() {
-  delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);
-}
+float get_units_kg() {return(scale.get_units()*0.453592);}
+void openmenu() {lcd.clear(); delay(1000);}
+void closemenu() {delay(1500);lcd.clear();}
+void loadmenu() {delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);}
 void into() {
   DateTime now = rtc.now();
   
@@ -257,7 +249,6 @@ start:
         goto start;}
       statemenu = 1;
     }
-  //End Loop Checking
   }
   if (keymenu == '#') {//Loop Setup #
 ReEn:
@@ -280,7 +271,5 @@ ReEn:
         goto start;}
       statemenu = 1;
     }
-  //End Loop Setup
   }
-//END
 }
