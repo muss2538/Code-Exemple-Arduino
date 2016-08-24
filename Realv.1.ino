@@ -9,8 +9,6 @@
 #define SolenoidAclose digitalWrite(10,0);
 #define SolenoidBopen digitalWrite(9,1);
 #define SolenoidBclose digitalWrite(9,0);
-#define motorstart digitalWrite(8,1);
-#define motorstop digitalWrite(8,0);
 
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
 unsigned int ManyShrimp = 0; 
@@ -24,16 +22,13 @@ unsigned int se = 0;
 int dataA;
 String dataB;
 int stac = 2;
+int pwmd8 = 255;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
 int volumearray[] = {5,0,0};
-byte counttimearray = 0;
-byte countmanyarray = 0;
-byte countvolumearray = 0;
-byte statemenu = 0;
-byte slectmenu = 1;
-byte i=0;
-
+byte counttimearray = 0;  byte countmanyarray = 0;
+byte countvolumearray = 0;byte statemenu = 0; 
+byte slectmenu = 1; byte i=0; byte j=0;
 float calibration_factor =99757.00; 
 #define zero_factor 8573573
 #define DOUT  A3
@@ -184,43 +179,31 @@ void EnterMenu() {
 void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){stac = 0;}
-    
     while(stac < 1 ){
-      
       openmenu();
       SolenoidAopen
-    
       dataB = String(get_units_kg()+offset, DEC_POINT);
       dataA = 1000*(dataB.toFloat());
       lcd.setCursor(0, 2);  lcd.print("Volume Set = "); lcd.print(Volume);
       lcd.setCursor(0, 1);  lcd.print(">>  Volume = "); lcd.print(dataA);
-    
       if(dataA >= Volume){
-        
         while(stac < 1 ){
-        
           SolenoidAclose
-          motorstart
-          delay(1500);
+          motorpwm();
           SolenoidBopen
-      
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          
           if(dataA <= 20){
-            
             delay(2000);
             SolenoidAclose
             SolenoidBclose
-            motorstop
+            analogWrite(8,0);
             delay(1000);
-            
             stac = 2;
           }
         }
       }
     }
-  //End Fn ActiveC
 }
 void StartOn() {
   ho = EEPROM.read(0);
@@ -234,6 +217,11 @@ void StartOn() {
   ManyShrimp = EEPROM.read(3); 
   Volume = EEPROM.read(0);
 }
+void motorpwm() {
+  if((pwmd8>=0)&&(j==0)) {pwmd8++;if(pwmd8==255){j=1;}}
+  if((pwmd8<=255)&&(j==1)) {pwmd8--;if(pwmd8==0){j=0;}}
+  analogWrite(8,pwmd8);delay(100);
+}
 /*****************************************************************************************************************************/
 void setup() {
   lcd.begin();Wire.begin();rtc.begin();
@@ -242,11 +230,10 @@ void setup() {
   closemenu();
   scale.set_scale(calibration_factor); 
   scale.set_offset(zero_factor);
-  
-  pinMode(8,OUTPUT);SolenoidAclose
-  pinMode(9,OUTPUT);SolenoidBclose
-  pinMode(10,OUTPUT);motorstop
-  
+  pinMode(9,OUTPUT);
+  pinMode(10,OUTPUT);
+  SolenoidAclose
+  SolenoidBclose
   StartOn();
 }
 void loop() {
