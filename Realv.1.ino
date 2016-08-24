@@ -10,7 +10,7 @@
 #define SolenoidBopen digitalWrite(9,1);
 #define SolenoidBclose digitalWrite(9,0);
 #define motorstart digitalWrite(8,1);
-#define motorstart digitalWrite(8,0);
+#define motorstop digitalWrite(8,0);
 
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
 unsigned int ManyShrimp = 0; 
@@ -23,15 +23,13 @@ unsigned int mi = 0;
 unsigned int se = 0;
 int dataA;
 String dataB;
-int stac = 1;
-
+int stac = 2;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
 int volumearray[] = {5,0,0};
 byte counttimearray = 0;
 byte countmanyarray = 0;
 byte countvolumearray = 0;
-
 byte statemenu = 0;
 byte slectmenu = 1;
 byte i=0;
@@ -66,7 +64,6 @@ void into() {
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
   delay(500);
 }
-
 void disdate() {
   lcd.print("Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);
 }
@@ -110,7 +107,6 @@ void menu() {
     lcd.setCursor(0, 3);    lcd.print(">> Set Volume");
     }
 }
-
 void MenuSetDate() {
   openmenu();
   DateTime now = rtc.now();
@@ -181,14 +177,12 @@ void EnterMenu() {
   if (slectmenu == 3) {MenuSetManyShrimp();}
   if (slectmenu == 4) {MenuSetVolume();}
 }
-
 void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){stac = 0;}
     
     while(stac < 1 ){
       
-    
       openmenu();
       SolenoidAopen
     
@@ -198,20 +192,31 @@ void ActiveC() {
       lcd.setCursor(0, 1);  lcd.print(">>  Volume = "); lcd.print(dataA);
     
       if(dataA >= Volume){
-        SolenoidAclose
-        motorstart
-        SolenoidBopen
+        
+        while(stac < 1 ){
+        
+          SolenoidAclose
+          motorstart
+          delay(1500);
+          SolenoidBopen
       
-        dataB = String(get_units_kg()+offset, DEC_POINT);
-        dataA = 1000*(dataB.toFloat());
-        if(dataA <= 20){
-          delay(2000);
-          SolenoidBclose
-          motorstop
+          dataB = String(get_units_kg()+offset, DEC_POINT);
+          dataA = 1000*(dataB.toFloat());
+          
+          if(dataA <= 20){
+            
+            delay(2000);
+            SolenoidAclose
+            SolenoidBclose
+            motorstop
+            delay(1000);
+            
+            stac = 2;
+          }
         }
       }
     }
-  
+  //End Fn ActiveC
 }
 /*****************************************************************************************************************************/
 void setup() {
@@ -225,6 +230,10 @@ void setup() {
   closemenu();
   scale.set_scale(calibration_factor); 
   scale.set_offset(zero_factor);
+  
+  pinMode(8,OUTPUT);SolenoidAclose
+  pinMode(9,OUTPUT);SolenoidBclose
+  pinMode(10,OUTPUT);motorstop
 }
 void loop() {
   Serial.println("Loop intro");
