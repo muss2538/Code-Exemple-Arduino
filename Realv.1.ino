@@ -1,4 +1,4 @@
-#include <EEPROM>
+#include <EEPROM.h>
 #include <Wire.h>
 #include "RTClib.h"
 #include "HX711.h"
@@ -53,7 +53,10 @@ void openmenu() {
   lcd.clear(); delay(1000);
 }
 void closemenu() {
-  delay(3500);lcd.clear();
+  delay(1500);lcd.clear();
+}
+void loadmenu() {
+  delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);
 }
 void into() {
   DateTime now = rtc.now();
@@ -71,6 +74,7 @@ void distime() {
   ho =(timearray[0]*10)+timearray[1];
   mi =(timearray[2]*10)+timearray[3];
   se =(timearray[4]*10)+timearray[5];
+  EEPROM.write(0,ho);EEPROM.write(1,mi);EEPROM.write(2,se);
   lcd.print("Time = ");lcd.print(ho);lcd.print(":");lcd.print(mi);lcd.print(":");lcd.print(se);
 }
 void dismany() {
@@ -112,8 +116,8 @@ void MenuSetDate() {
   DateTime now = rtc.now();
   dday=now.day();  mmonth=now.month();  yyear=now.year();
   
-  lcd.setCursor(0, 0);  lcd.print("Saving Date...");
   lcd.setCursor(0, 2);  disdate();
+  lcd.setCursor(0, 0);  lcd.print("Saving Date");loadmenu();
   closemenu();
 }
 void MenuSetTime() {
@@ -130,8 +134,8 @@ void MenuSetTime() {
     }
   }
   openmenu();
-  lcd.setCursor(0, 0);   lcd.print("Time Saving...");
   lcd.setCursor(0, 2);   distime();
+  lcd.setCursor(0, 0);   lcd.print("Time Saving");loadmenu();
   i=0; counttimearray=0;
   closemenu();
 }
@@ -148,8 +152,8 @@ void MenuSetManyShrimp() {
     }  
   }
   openmenu();
-  lcd.setCursor(0, 0);   lcd.print("Many Saving...");
   lcd.setCursor(0, 2);   dismany();
+  lcd.setCursor(0, 0);   lcd.print("Many Saving");loadmenu();
   i=0; countmanyarray=0;
   closemenu();
 }
@@ -166,8 +170,8 @@ void MenuSetVolume() {
     }
   }
   openmenu();
-  lcd.setCursor(0, 1);  lcd.print("Volume Saving...");
   lcd.setCursor(0, 2);   disvolume();
+  lcd.setCursor(0, 1);  lcd.print("Volume Saving");loadmenu();
   i=0; countvolumearray=0;
   closemenu();
 }
@@ -218,15 +222,23 @@ void ActiveC() {
     }
   //End Fn ActiveC
 }
+void StartOn() {
+  ho = EEPROM.read(0);
+  mi = EEPROM.read(1);
+  se = EEPROM.read(2);
+  
+  dday = EEPROM.read(3);
+  mmonth = EEPROM.read(4);
+  yyear = EEPROM.read(0);  
+  
+  ManyShrimp = EEPROM.read(3); 
+  Volume = EEPROM.read(0);
+}
 /*****************************************************************************************************************************/
 void setup() {
-  Serial.begin(9600);
-  lcd.begin();
-  Wire.begin();
-  rtc.begin();
-  lcd.print("Deivce Power ON");
-  pinMode(13,OUTPUT);
-  digitalWrite(13,0);
+  lcd.begin();Wire.begin();rtc.begin();
+  lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
+  lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmeu();
   closemenu();
   scale.set_scale(calibration_factor); 
   scale.set_offset(zero_factor);
@@ -234,17 +246,15 @@ void setup() {
   pinMode(8,OUTPUT);SolenoidAclose
   pinMode(9,OUTPUT);SolenoidBclose
   pinMode(10,OUTPUT);motorstop
+  
+  StartOn();
 }
 void loop() {
-  Serial.println("Loop intro");
-  
-  
 start:
   statemenu = 0;
   into();
   char keymenu = KP.Getkey();
   ActiveC();
-  
   if (keymenu == '*') {//Loop Checking *
     statemenu = 1;
     openmenu();
@@ -254,12 +264,10 @@ start:
       lcd.setCursor(0,1);       distime();
       lcd.setCursor(0,2);       dismany();
       lcd.setCursor(0,3);       disvolume();
-      
       char fnmenu = KP.Getkey();
       if (fnmenu == 'D') {
         lcd.clear();  //Exit Menu
-        goto start;
-      }
+        goto start;}
       statemenu = 1;
     }
   //End Loop Checking
@@ -270,29 +278,22 @@ ReEn:
     statemenu = 1;
     openmenu();
     while (statemenu == 1) {
-      Serial.println("Loop Setup");
       menu();
       delay(200);
       char fnmenu = KP.Getkey();
-      
       if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
-        slectmenu--;
-      }
+        slectmenu--;}
       if ((fnmenu == 'B')&&(slectmenu!=4)){   //Down
-        slectmenu++; 
-      }
+        slectmenu++;}
       if (fnmenu == 'C') {//Enter Menu
         EnterMenu();
-        goto ReEn;
-      }        
+        goto ReEn;}        
       if (fnmenu == 'D') {
         lcd.clear();  //Exit Menu
-        goto start;
-      }
+        goto start;}
       statemenu = 1;
     }
   //End Loop Setup
   }
-
 //END
 }
