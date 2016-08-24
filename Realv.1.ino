@@ -52,32 +52,57 @@ void StartOn() {
   //ManyShrimp = EEPROM.read(3); 
   //Volume = EEPROM.read(0);
 }
-float get_units_kg() {return(scale.get_units()*0.453592);}
-void openmenu() {lcd.clear(); delay(1000);}
-void closemenu() {delay(1500);lcd.clear();}
-void loadmenu() {delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);}
+float get_units_kg() {
+  return(scale.get_units()*0.453592);}
+void openmenu() {
+  lcd.clear(); delay(1000);}
+void closemenu() {
+  delay(1500);lcd.clear();}
+void loadmenu() {
+  delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);lcd.print(".");delay(500);}
 void into() {
   DateTime now = rtc.now();
-  
   lcd.setCursor(0, 1);
   lcd.print("  Time = "); lcd.print(now.hour(), DEC); lcd.print(':'); lcd.print(now.minute(), DEC); lcd.print(':'); lcd.print(now.second(), DEC); lcd.print(" ");
   lcd.setCursor(0, 2);
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
   delay(500);
 }
-void disdate() {
-  lcd.print("Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);
+//eeprom write
+void ewtime() {
+  EEPROM.write(0,ho);EEPROM.write(1,mi);EEPROM.write(2,se);}
+void ewdate() {
+  EEPROM.write(3,dday);EEPROM.write(4,mmonth);EEPROM.write(5,yyear);EEPROM.write(6,se);}
 }
-void datatime(){
+void ewmany() {
+  
+}
+void ewvol() {
+  
+}
+//convers data to int
+void datadate() {
   ho =(timearray[0]*10)+timearray[1];
   mi =(timearray[2]*10)+timearray[3];
   se =(timearray[4]*10)+timearray[5];
 }
+void datatime() {
+  ho =(timearray[0]*10)+timearray[1];
+  mi =(timearray[2]*10)+timearray[3];
+  se =(timearray[4]*10)+timearray[5];
+}
+void datamany() {
+
+}
+void datavolume() {
+
+}
+//String to display
+void disdate() {
+  lcd.print("Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);
+}
 void distime() {
   lcd.print("Time = ");lcd.print(ho);lcd.print(":");lcd.print(mi);lcd.print(":");lcd.print(se);
-}
-void xxx(){
-  EEPROM.write(0,ho);EEPROM.write(1,mi);EEPROM.write(2,se);
 }
 void dismany() {
   ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);
@@ -87,6 +112,7 @@ void disvolume() {
   Volume =((volumearray[0]*100)+(volumearray[1]*10)+volumearray[2]);
   lcd.print("Vol. = ");lcd.print(Volume);lcd.print(" Gram");
 }
+//Setup Mode
 void menu() {
   if (slectmenu == 1) {
     lcd.setCursor(0, 0);    lcd.print(">> Set Date");
@@ -139,7 +165,7 @@ void MenuSetTime() {
   datatime();
   lcd.setCursor(0, 2);   distime();
   lcd.setCursor(0, 0);   lcd.print("Time Saving");loadmenu();
-  xxx();
+  ewtime();
   i=0; counttimearray=0;
   closemenu();
 }
@@ -185,6 +211,7 @@ void EnterMenu() {
   if (slectmenu == 3) {MenuSetManyShrimp();}
   if (slectmenu == 4) {MenuSetVolume();}
 }
+//Active Mode
 void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){stac = 0;}
@@ -214,7 +241,6 @@ void ActiveC() {
       }
     }
 }
-
 void motorpwm() {
   if((pwmd8>=0)&&(j==0)) {pwmd8++;if(pwmd8==255){j=1;}}
   if((pwmd8<=255)&&(j==1)) {pwmd8--;if(pwmd8==0){j=0;}}
@@ -250,9 +276,6 @@ start:
       lcd.setCursor(0,1);       distime();
       lcd.setCursor(0,2);       dismany();
       lcd.setCursor(0,3);       disvolume();
-      Serial.print(EEPROM.read(0));
-      Serial.print(EEPROM.read(1));
-      Serial.println(EEPROM.read(2));
       char fnmenu = KP.Getkey();
       if (fnmenu == 'D') {
         lcd.clear();  //Exit Menu
