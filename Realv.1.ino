@@ -5,6 +5,13 @@
 #include <LiquidCrystal_I2C.h>
 #include <OnewireKeypad.h>
 
+#define SolenoidAopen digitalWrite(10,1);
+#define SolenoidAclose digitalWrite(10,0);
+#define SolenoidBopen digitalWrite(9,1);
+#define SolenoidBclose digitalWrite(9,0);
+#define motorstart digitalWrite(8,1);
+#define motorstart digitalWrite(8,0);
+
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
 unsigned int ManyShrimp = 0; 
 unsigned int Volume = 0;
@@ -16,6 +23,7 @@ unsigned int mi = 0;
 unsigned int se = 0;
 int dataA;
 String dataB;
+int stac = 1;
 
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
@@ -176,29 +184,34 @@ void EnterMenu() {
 
 void ActiveC() {
   DateTime now = rtc.now();
-  if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    openmenu();
-    SolenoidAopen
+  if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){stac = 0;}
     
-    dataB = String(get_units_kg()+offset, DEC_POINT);
-    dataA = 1000*(dataB.toFloat());
-    lcd.setCursor(0, 2);  lcd.print("Volume Set = "); lcd.print(Volume);
-    lcd.setCursor(0, 1);  lcd.print(">>  Volume = "); lcd.print(dataA);
-    
-    if(dataA >= Volume){
-      SolenoidAclose
-      motorstart
-      SolenoidBopen
+    while(stac < 1 ){
       
+    
+      openmenu();
+      SolenoidAopen
+    
       dataB = String(get_units_kg()+offset, DEC_POINT);
       dataA = 1000*(dataB.toFloat());
-      if(dataA <= 20){
-        delay(2000);
-        SolenoidBclose
-        motorstop
+      lcd.setCursor(0, 2);  lcd.print("Volume Set = "); lcd.print(Volume);
+      lcd.setCursor(0, 1);  lcd.print(">>  Volume = "); lcd.print(dataA);
+    
+      if(dataA >= Volume){
+        SolenoidAclose
+        motorstart
+        SolenoidBopen
+      
+        dataB = String(get_units_kg()+offset, DEC_POINT);
+        dataA = 1000*(dataB.toFloat());
+        if(dataA <= 20){
+          delay(2000);
+          SolenoidBclose
+          motorstop
+        }
       }
     }
-  }
+  
 }
 /*****************************************************************************************************************************/
 void setup() {
