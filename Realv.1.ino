@@ -19,22 +19,19 @@ unsigned int mi = 0;
 unsigned int se = 0;
 int dataA;
 String dataB;
-int stac = 2;
-int pwmd8 = 255;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
 int volumearray[] = {5,0,0};
 byte counttimearray = 0;  byte countmanyarray = 0;
 byte countvolumearray = 0;byte statemenu = 0; 
-byte slectmenu = 1; byte i=0; byte j=0;
-float calibration_factor =99757.00; 
-#define zero_factor 8573573
+byte slectmenu = 1; byte i=0; byte stac1 = 2;  byte stac2 = 2;
+float calibration_factor =99364.00; 
+#define zero_factor 8566056
 #define DOUT  A3
 #define CLK   A2
 #define DEC_POINT  2
 float offset=0;                 float get_units_kg();
 HX711 scale(DOUT, CLK);
-
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
@@ -42,7 +39,7 @@ void StartOn() {
   ho = EEPROM.read(0);  mi = EEPROM.read(1);  se = EEPROM.read(2);
   dday = EEPROM.read(3);  mmonth = EEPROM.read(4);    yyear |= EEPROM.read(5)<<8;  yyear |= EEPROM.read(6)&0xFF;
   ManyShrimp |= EEPROM.read(7)<<8;  ManyShrimp |= EEPROM.read(8)&0xFF;
-  Volume = EEPROM.read(9)<<8; Volume = EEPROM.read(10)&0xFF;}
+  Volume |= EEPROM.read(9)<<8; Volume |= EEPROM.read(10)&0xFF;}
 float get_units_kg() {
   return(scale.get_units()*0.453592);}
 void openmenu() {
@@ -69,8 +66,7 @@ void ewvol() {
 void datatime() {
   ho =(timearray[0]*10)+timearray[1];
   mi =(timearray[2]*10)+timearray[3];
-  se =(timearray[4]*10)+timearray[5];
-}
+  se =(timearray[4]*10)+timearray[5];}
 void datamany() {
   ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);}
 void datavolume() {
@@ -150,7 +146,7 @@ void MenuSetVolume() {
       countvolumearray++;i++;
       delay(250);}
   }
-  openmenu(); disvolume();  ewvol();
+  openmenu(); datavolume();  ewvol();
   lcd.setCursor(0, 2);   disvolume();
   lcd.setCursor(0, 1);  lcd.print("Volume Saving");loadmenu();
   i=0; countvolumearray=0;  closemenu();}
@@ -161,18 +157,25 @@ void EnterMenu() {
   if (slectmenu == 4) {MenuSetVolume();}}
 void ActiveC() {
   DateTime now = rtc.now();
-  if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){stac = 0;}
-    while(stac < 1 ){
-      openmenu();
+  if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
+    stac1 = 0;
+    openmenu();
+    lcd.setCursor(0, 0);  lcd.print("####################");
+    lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
+    lcd.setCursor(0, 2);  lcd.print("Volume    =      g. ");
+    lcd.setCursor(0, 3);  lcd.print("WEIGHTING =      g. ");}
+    while(stac1 < 1 ){
       SolenoidAopen
       dataB = String(get_units_kg()+offset, DEC_POINT);
       dataA = 1000*(dataB.toFloat());
-      lcd.setCursor(0, 2);  lcd.print("Volume Set = "); lcd.print(Volume);
-      lcd.setCursor(0, 1);  lcd.print(">>  Volume = "); lcd.print(dataA);
-      if(dataA >= Volume){
-        while(stac < 1 ){
+      lcd.setCursor(12, 2);  lcd.print(Volume);
+      lcd.setCursor(12, 3);  lcd.print(dataA);
+      if(dataA >= Volume){stac2 = 0;}
+        while(stac2 < 1 ){
+          lcd.setCursor(12, 2);  lcd.print(Volume);
+          lcd.setCursor(12, 3);  lcd.print(dataA);
           SolenoidAclose
-          motorpwm();
+          analogWrite(11,130);delay(1500);analogWrite(11,255);delay(1500);
           SolenoidBopen
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
@@ -180,13 +183,9 @@ void ActiveC() {
             delay(2000);
             SolenoidAclose
             SolenoidBclose
-            analogWrite(8,0);
-            delay(1000);
-            stac = 2;}}}}}
-void motorpwm() {
-  if((pwmd8>=0)&&(j==0)) {pwmd8++;if(pwmd8==255){j=1;}}
-  if((pwmd8<=255)&&(j==1)) {pwmd8--;if(pwmd8==0){j=0;}}
-  analogWrite(8,pwmd8);delay(100);}
+            analogWrite(11,0);
+            closemenu();
+            stac2 = 2;stac1 = 2;}}}}
 void setup() {
   lcd.begin();Wire.begin();rtc.begin();
   lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
