@@ -69,31 +69,22 @@ void into() {
   delay(500);
 }
 //eeprom write
-void ewtime() {
-  EEPROM.write(0,ho);EEPROM.write(1,mi);EEPROM.write(2,se);}
 void ewdate() {
-  EEPROM.write(3,dday);EEPROM.write(4,mmonth);EEPROM.write(5,yyear);EEPROM.write(6,se);}
-}
+  EEPROM.write(3,dday);  EEPROM.write(4,mmonth);  EEPROM.write(5,yyear>>8);  EEPROM.write(6,yyear&0xFF);}
+void ewtime() {
+  EEPROM.write(0,ho);  EEPROM.write(1,mi);  EEPROM.write(2,se);}
 void ewmany() {
-  
-}
+  EEPROM.write(7,ManyShrimp>>8);  EEPROM.write(8,ManyShrimp&0xFF);}
 void ewvol() {
-  
-}
+  EEPROM.write(9,Volume>>8);  EEPROM.write(10,Volume&0xFF);}
 //convers data to int
-void datadate() {
-  ho =(timearray[0]*10)+timearray[1];
-  mi =(timearray[2]*10)+timearray[3];
-  se =(timearray[4]*10)+timearray[5];
-}
 void datatime() {
   ho =(timearray[0]*10)+timearray[1];
   mi =(timearray[2]*10)+timearray[3];
   se =(timearray[4]*10)+timearray[5];
 }
 void datamany() {
-
-}
+  ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);}
 void datavolume() {
 
 }
@@ -105,9 +96,7 @@ void distime() {
   lcd.print("Time = ");lcd.print(ho);lcd.print(":");lcd.print(mi);lcd.print(":");lcd.print(se);
 }
 void dismany() {
-  ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);
-  lcd.print("Many = ");lcd.print(ManyShrimp);
-}
+  lcd.print("Many = ");lcd.print(ManyShrimp);}
 void disvolume() {
   Volume =((volumearray[0]*100)+(volumearray[1]*10)+volumearray[2]);
   lcd.print("Vol. = ");lcd.print(Volume);lcd.print(" Gram");
@@ -143,9 +132,9 @@ void MenuSetDate() {
   openmenu();
   DateTime now = rtc.now();
   dday=now.day();  mmonth=now.month();  yyear=now.year();
-  
   lcd.setCursor(0, 2);  disdate();
   lcd.setCursor(0, 0);  lcd.print("Saving Date");loadmenu();
+  ewdate();
   closemenu();
 }
 void MenuSetTime() {
