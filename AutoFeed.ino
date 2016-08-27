@@ -4,10 +4,11 @@
 #include "HX711.h"
 #include <LiquidCrystal_I2C.h>
 #include <OnewireKeypad.h>
-#define SolenoidAopen digitalWrite(10,1);
-#define SolenoidAclose digitalWrite(10,0);
-#define SolenoidBopen digitalWrite(9,1);
-#define SolenoidBclose digitalWrite(9,0);
+#define pwml 180
+#define SolenoidAopen digitalWrite(9,1);
+#define SolenoidAclose digitalWrite(9,0);
+#define SolenoidBopen digitalWrite(10,1);
+#define SolenoidBclose digitalWrite(10,0);
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
 unsigned int ManyShrimp = 0; 
 unsigned int Volume = 0;
@@ -17,7 +18,8 @@ unsigned int yyear = 0;
 unsigned int ho = 0;
 unsigned int mi = 0;
 unsigned int se = 0;
-int dataA;
+unsigned int dataA;
+unsigned int ilcd = 0;
 String dataB;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
@@ -25,8 +27,8 @@ int volumearray[] = {5,0,0};
 byte counttimearray = 0;  byte countmanyarray = 0;
 byte countvolumearray = 0;byte statemenu = 0; 
 byte slectmenu = 1; byte i=0; byte stac1 = 2;  byte stac2 = 2;
-float calibration_factor =99364.00; 
-#define zero_factor 8566056
+float calibration_factor =99732.00; 
+#define zero_factor 8562308
 #define DOUT  A3
 #define CLK   A2
 #define DEC_POINT  2
@@ -54,7 +56,7 @@ void into() {
   lcd.print("  Time = "); lcd.print(now.hour(), DEC); lcd.print(':'); lcd.print(now.minute(), DEC); lcd.print(':'); lcd.print(now.second(), DEC); lcd.print(" ");
   lcd.setCursor(0, 2);
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
-  delay(500);}
+  delay(1000);}
 void ewdate() {
   EEPROM.write(3,dday);  EEPROM.write(4,mmonth);  EEPROM.write(5,yyear>>8);  EEPROM.write(6,yyear&0xFF);}
 void ewtime() {
@@ -150,6 +152,7 @@ void MenuSetVolume() {
   lcd.setCursor(0, 2);   disvolume();
   lcd.setCursor(0, 1);  lcd.print("Volume Saving");loadmenu();
   i=0; countvolumearray=0;  closemenu();}
+
 void EnterMenu() {
   if (slectmenu == 1) {MenuSetDate();}
   if (slectmenu == 2) {MenuSetTime();}
@@ -159,6 +162,7 @@ void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
     stac1 = 0;
+    lcd.backlight();
     openmenu();
     lcd.setCursor(0, 0);  lcd.print("####################");
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
@@ -175,19 +179,21 @@ void ActiveC() {
           lcd.setCursor(12, 2);  lcd.print(Volume);
           lcd.setCursor(12, 3);  lcd.print(dataA);
           SolenoidAclose
-          analogWrite(11,130);delay(1500);analogWrite(11,255);delay(1500);
           SolenoidBopen
+          analogWrite(11,pwml);delay(500);analogWrite(11,255);delay(500);
+          SolenoidBclose
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 20){
+          if(dataA <= 5){
             delay(2000);
             SolenoidAclose
             SolenoidBclose
             analogWrite(11,0);
             closemenu();
-            stac2 = 2;stac1 = 2;}}}}
+            stac2 = 2;stac1 = 2;ilcd=0;}}}}
 void setup() {
   lcd.begin();Wire.begin();rtc.begin();
+  lcd.backlight();
   lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
   lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmenu();
   closemenu();
@@ -199,10 +205,13 @@ void setup() {
   StartOn();}
 void loop() {
 start:
+  if(ilcd<=30){ilcd++;}
+  if(ilcd==31){lcd.noBacklight();}
   statemenu = 0;  into();
   char keymenu = KP.Getkey();
   ActiveC();
   if (keymenu == '*') {//Loop Checking *
+    lcd.backlight();
     statemenu = 1;    openmenu();
     while (statemenu == 1) {
       Serial.println("Loop Checking");
@@ -212,11 +221,12 @@ start:
       lcd.setCursor(0,3);       disvolume();
       char fnmenu = KP.Getkey();
       if (fnmenu == 'D') {
-        lcd.clear();  //Exit Menu
+        lcd.clear();ilcd=0;  //Exit Menu
         goto start;}
       statemenu = 1;}}
   if (keymenu == '#') {//Loop Setup #
 ReEn:
+    lcd.backlight();
     slectmenu = 1;
     statemenu = 1;
     openmenu();
@@ -232,7 +242,7 @@ ReEn:
         EnterMenu();
         goto ReEn;}        
       if (fnmenu == 'D') {
-        lcd.clear();  //Exit Menu
+        lcd.clear();ilcd=0;  //Exit Menu
         goto start;}
       statemenu = 1;}}
 }
