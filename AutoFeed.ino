@@ -126,6 +126,8 @@ void MenuSetManyShrimp() {
       delay(250);}  
   }
   openmenu(); datamany(); ewmany();
+  Volume=((1000*coutday)+(7*ManyShrimp))/70;
+  ewvol();
   lcd.setCursor(0, 2);   dismany();
   lcd.setCursor(0, 0);   lcd.print("Many Saving");loadmenu();
   i=0; countmanyarray=0;  closemenu();}
@@ -141,7 +143,6 @@ void ActiveC() {
     ewvol();
   }
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    Volume=((1000*coutday)+(7*ManyShrimp))/70;
     stac1 = 0;    lcd.backlight();    openmenu();
     lcd.setCursor(0, 0);  lcd.print("Day       =");lcd.print(coutday);
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
