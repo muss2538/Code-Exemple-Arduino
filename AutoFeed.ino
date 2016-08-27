@@ -24,12 +24,10 @@ unsigned int ilcd = 0;
 String dataB;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
-int volumearray[] = {5,0,0};
-byte counttimearray = 0;  byte countmanyarray = 0;
-byte countvolumearray = 0;byte statemenu = 0; 
+byte counttimearray = 0;  byte countmanyarray = 0;  byte statemenu = 0; 
 byte slectmenu = 1; byte i=0; byte stac1 = 2;  byte stac2 = 2;
-float calibration_factor =99732.00; 
-#define zero_factor 8562308
+float calibration_factor =100456.00; 
+#define zero_factor 8567295
 #define DOUT  A3
 #define CLK   A2
 #define DEC_POINT  2
@@ -74,8 +72,6 @@ void datatime() {
   se =(timearray[4]*10)+timearray[5];}
 void datamany() {
   ManyShrimp =((manyarray[0]*1000)+(manyarray[1]*100)+(manyarray[2]*10)+manyarray[3]);}
-void datavolume() {
-  Volume =((volumearray[0]*100)+(volumearray[1]*10)+volumearray[2]);}
 void disdate() {
   lcd.print("Date = "); lcd.print(dday, DEC); lcd.print('/'); lcd.print(mmonth, DEC); lcd.print('/'); lcd.print(yyear, DEC);}
 void distime() {
@@ -141,14 +137,13 @@ void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == 00) && (now.minute() == 00) && (now.second() == 00)){
     coutday++;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
-    Volume=(1000*coutday)+(7*ManyShrimp)/70;
+    Volume=((1000*coutday)+(7*ManyShrimp))/70;
     ewvol();
   }
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    Volume=(1000*coutday)+(7*ManyShrimp)/70;
-    ewvol()
+    Volume=((1000*coutday)+(7*ManyShrimp))/70;
     stac1 = 0;    lcd.backlight();    openmenu();
-    lcd.setCursor(0, 0);  lcd.print("####################");
+    lcd.setCursor(0, 0);  lcd.print("Day       =");lcd.print(coutday);
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
     lcd.setCursor(0, 2);  lcd.print("Volume    =      g. ");
     lcd.setCursor(0, 3);  lcd.print("WEIGHTING =      g. ");}
@@ -161,7 +156,7 @@ void ActiveC() {
       if(dataA >= Volume){stac2 = 0;}
         while(stac2 < 1 ){
           lcd.setCursor(12, 2);  lcd.print(Volume);
-          lcd.setCursor(12, 3);  lcd.print(dataA);
+          lcd.setCursor(12, 3);  lcd.print(dataA, DEC);
           SolenoidAclose
           SolenoidBopen
           analogWrite(11,pwml);delay(500);analogWrite(11,255);delay(500);
@@ -201,7 +196,7 @@ start:
       Serial.println("Loop Checking");
       lcd.setCursor(0,0);       disdate();
       lcd.setCursor(0,1);       distime();
-      lcd.setCursor(0,2);       dismany();
+      lcd.setCursor(0,2);       dismany(); lcd.setCursor(11,2);lcd.print("Day = "); lcd.print(coutday);
       lcd.setCursor(0,3);       disvolume();
       char fnmenu = KP.Getkey();
       if (fnmenu == 'D') {
