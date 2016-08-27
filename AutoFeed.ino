@@ -12,6 +12,7 @@
 char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
 unsigned int ManyShrimp = 0; 
 unsigned int Volume = 0;
+unsigned int coutday = 0;
 unsigned int dday = 0;
 unsigned int mmonth = 0;
 unsigned int yyear = 0;
@@ -37,13 +38,14 @@ HX711 scale(DOUT, CLK);
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
 OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
+float get_units_kg() {
+  return(scale.get_units()*0.453592);}
 void StartOn() {
   ho = EEPROM.read(0);  mi = EEPROM.read(1);  se = EEPROM.read(2);
   dday = EEPROM.read(3);  mmonth = EEPROM.read(4);    yyear |= EEPROM.read(5)<<8;  yyear |= EEPROM.read(6)&0xFF;
   ManyShrimp |= EEPROM.read(7)<<8;  ManyShrimp |= EEPROM.read(8)&0xFF;
-  Volume |= EEPROM.read(9)<<8; Volume |= EEPROM.read(10)&0xFF;}
-float get_units_kg() {
-  return(scale.get_units()*0.453592);}
+  Volume |= EEPROM.read(9)<<8; Volume |= EEPROM.read(10)&0xFF;
+  coutday |= EEPROM.read(11)<<8; coutday |= EEPROM.read(12)&0xFF;}
 void openmenu() {
   lcd.clear(); delay(1000);}
 void closemenu() {
@@ -58,7 +60,8 @@ void into() {
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
   delay(1000);}
 void ewdate() {
-  EEPROM.write(3,dday);  EEPROM.write(4,mmonth);  EEPROM.write(5,yyear>>8);  EEPROM.write(6,yyear&0xFF);}
+  EEPROM.write(3,dday);  EEPROM.write(4,mmonth);  EEPROM.write(5,yyear>>8);  EEPROM.write(6,yyear&0xFF);
+  coutday=0;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);}
 void ewtime() {
   EEPROM.write(0,ho);  EEPROM.write(1,mi);  EEPROM.write(2,se);}
 void ewmany() {
@@ -85,23 +88,15 @@ void menu() {
   if (slectmenu == 1) {
     lcd.setCursor(0, 0);    lcd.print(">> Set Date");
     lcd.setCursor(0, 1);    lcd.print("   Set Time");
-    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");
-    lcd.setCursor(0, 3);    lcd.print("   Set Volume");}
+    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");}
   if (slectmenu == 2) {
     lcd.setCursor(0, 0);    lcd.print("   Set Date");
     lcd.setCursor(0, 1);    lcd.print(">> Set Time");
-    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");
-    lcd.setCursor(0, 3);    lcd.print("   Set Volume");}
+    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");}
   if (slectmenu == 3) {
     lcd.setCursor(0, 0);    lcd.print("   Set Date");
     lcd.setCursor(0, 1);    lcd.print("   Set Time");
-    lcd.setCursor(0, 2);    lcd.print(">> Set Many Shrimp");
-    lcd.setCursor(0, 3);    lcd.print("   Set Volume");}
-  if (slectmenu == 4) {
-    lcd.setCursor(0, 0);    lcd.print("   Set Date");
-    lcd.setCursor(0, 1);    lcd.print("   Set Time");
-    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");
-    lcd.setCursor(0, 3);    lcd.print(">> Set Volume");}
+    lcd.setCursor(0, 2);    lcd.print(">> Set Many Shrimp");}
 }
 void MenuSetDate() {
   openmenu();
@@ -138,32 +133,21 @@ void MenuSetManyShrimp() {
   lcd.setCursor(0, 2);   dismany();
   lcd.setCursor(0, 0);   lcd.print("Many Saving");loadmenu();
   i=0; countmanyarray=0;  closemenu();}
-void MenuSetVolume() {
-  openmenu();
-  lcd.setCursor(0, 0);  lcd.print("***SetVolume***");
-  while(countvolumearray < 3){
-    if (KP.Getkey() != NO_KEY){
-      lcd.setCursor(i, 2);    lcd.print(KP.Getkey());
-      volumearray[countvolumearray] = KP.Getkey()-'0';
-      countvolumearray++;i++;
-      delay(250);}
-  }
-  openmenu(); datavolume();  ewvol();
-  lcd.setCursor(0, 2);   disvolume();
-  lcd.setCursor(0, 1);  lcd.print("Volume Saving");loadmenu();
-  i=0; countvolumearray=0;  closemenu();}
-
 void EnterMenu() {
   if (slectmenu == 1) {MenuSetDate();}
   if (slectmenu == 2) {MenuSetTime();}
-  if (slectmenu == 3) {MenuSetManyShrimp();}
-  if (slectmenu == 4) {MenuSetVolume();}}
+  if (slectmenu == 3) {MenuSetManyShrimp();}}
 void ActiveC() {
   DateTime now = rtc.now();
+  if((now.hour() == 00) && (now.minute() == 00) && (now.second() == 00)){
+    coutday++;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
+    Volume=(1000*coutday)+(7*ManyShrimp)/70;
+    ewvol();
+  }
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    stac1 = 0;
-    lcd.backlight();
-    openmenu();
+    Volume=(1000*coutday)+(7*ManyShrimp)/70;
+    ewvol()
+    stac1 = 0;    lcd.backlight();    openmenu();
     lcd.setCursor(0, 0);  lcd.print("####################");
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
     lcd.setCursor(0, 2);  lcd.print("Volume    =      g. ");
@@ -225,9 +209,9 @@ start:
         goto start;}
       statemenu = 1;}}
   if (keymenu == '#') {//Loop Setup #
+    slectmenu = 1;
 ReEn:
     lcd.backlight();
-    slectmenu = 1;
     statemenu = 1;
     openmenu();
     while (statemenu == 1) {
@@ -236,7 +220,7 @@ ReEn:
       char fnmenu = KP.Getkey();
       if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
         slectmenu--;}
-      if ((fnmenu == 'B')&&(slectmenu!=4)){   //Down
+      if ((fnmenu == 'B')&&(slectmenu!=3)){   //Down
         slectmenu++;}
       if (fnmenu == 'C') {//Enter Menu
         EnterMenu();
