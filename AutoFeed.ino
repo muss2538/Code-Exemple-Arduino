@@ -3,29 +3,31 @@
 #include "RTClib.h"
 #include "HX711.h"
 #include <LiquidCrystal_I2C.h>
-#include <OnewireKeypad.h>
+#include <Keypad.h>
+char keys[4][4] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'#','0','*','D'}
+};
+byte rowPins[4] = {8, 7, 6, 5};
+byte colPins[4] = {4, 3, 2, 1};
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 4 );
+
 #define pwml 180
 #define SolenoidAopen digitalWrite(9,1);
 #define SolenoidAclose digitalWrite(9,0);
 #define SolenoidBopen digitalWrite(10,1);
 #define SolenoidBclose digitalWrite(10,0);
-char KEYS[] = {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'};
-unsigned int ManyShrimp = 0; 
-unsigned int Volume = 0;
-unsigned int coutday = 0;
-unsigned int dday = 0;
-unsigned int mmonth = 0;
-unsigned int yyear = 0;
-unsigned int ho = 0;
-unsigned int mi = 0;
-unsigned int se = 0;
+
+unsigned int ManyShrimp = 0, Volume = 0,coutweek = 0, coutday = 0, dday = 0, mmonth = 0, yyear = 0, ho = 0, mi = 0, se = 0;
 unsigned int dataA;
 unsigned int ilcd = 0;
 String dataB;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
-byte counttimearray = 0;  byte countmanyarray = 0;  byte statemenu = 0; 
-byte slectmenu = 1; byte i=0; byte stac1 = 2;  byte stac2 = 2;
+byte counttimearray = 0, countmanyarray = 0, statemenu = 2, slectmenu = 1, i=0, stac1 = 2, stac2 = 2;
+
 float calibration_factor =100456.00; 
 #define zero_factor 8567295
 #define DOUT  A3
@@ -35,7 +37,6 @@ float offset=0;                 float get_units_kg();
 HX711 scale(DOUT, CLK);
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
-OnewireKeypad <LiquidCrystal_I2C, 16> KP( lcd, KEYS, 4, 4, A1, 4700, 1000 );
 float get_units_kg() {
   return(scale.get_units()*0.453592);}
 void StartOn() {
@@ -43,7 +44,9 @@ void StartOn() {
   dday = EEPROM.read(3);  mmonth = EEPROM.read(4);    yyear |= EEPROM.read(5)<<8;  yyear |= EEPROM.read(6)&0xFF;
   ManyShrimp |= EEPROM.read(7)<<8;  ManyShrimp |= EEPROM.read(8)&0xFF;
   Volume |= EEPROM.read(9)<<8; Volume |= EEPROM.read(10)&0xFF;
-  coutday |= EEPROM.read(11)<<8; coutday |= EEPROM.read(12)&0xFF;}
+  coutday |= EEPROM.read(11)<<8; coutday |= EEPROM.read(12)&0xFF;
+  coutweek |= EEPROM.read(13)<<8; coutweek |= EEPROM.read(14)&0xFF;
+}
 void openmenu() {
   lcd.clear(); delay(1000);}
 void closemenu() {
@@ -59,7 +62,8 @@ void into() {
   delay(1000);}
 void ewdate() {
   EEPROM.write(3,dday);  EEPROM.write(4,mmonth);  EEPROM.write(5,yyear>>8);  EEPROM.write(6,yyear&0xFF);
-  coutday=0;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);}
+  coutday=0;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
+  coutweek=0;EEPROM.write(13,coutday>>8);  EEPROM.write(14,coutday&0xFF);}
 void ewtime() {
   EEPROM.write(0,ho);  EEPROM.write(1,mi);  EEPROM.write(2,se);}
 void ewmany() {
@@ -138,25 +142,55 @@ void EnterMenu() {
 void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == 00) && (now.minute() == 00) && (now.second() == 00)){
-    coutday++;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
-    Volume=((1000*coutday)+(7*ManyShrimp))/70;
-    ewvol();
-  }
+    coutday++;
+    if(coutday==7) {
+      coutweek++;coutday=0;
+      EEPROM.write(13,coutweek>>8);  EEPROM.write(14,coutweek&0xFF);}
+    EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
+    Volume=((1+coutweek)*0.1*ManyShrimp;
+    ewvol();}
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    stac1 = 0;    lcd.backlight();    openmenu();
-    lcd.setCursor(0, 0);  lcd.print("Day       =");lcd.print(coutday);
+    stac1 = 0;    lcd.backlight();    openmenu();     int VolumeA = Volume; 
+    lcd.setCursor(0, 0);  lcd.print("Week       =");lcd.print(coutweek);
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
     lcd.setCursor(0, 2);  lcd.print("Volume    =      g. ");
     lcd.setCursor(0, 3);  lcd.print("WEIGHTING =      g. ");}
+re: 
+    if(VolumeA>=501){
+      while(stac1 < 1 ){
+      SolenoidAopen
+      dataB = String(get_units_kg()+offset, DEC_POINT);
+      dataA = 1000*(dataB.toFloat());
+      lcd.setCursor(12, 2);  lcd.print(VolumeA);
+      lcd.setCursor(12, 3);  lcd.print(dataA);
+      if(dataA >= 500){stac2 = 0;}
+        while(stac2 < 1 ){
+          lcd.setCursor(12, 2);  lcd.print(VolumeA);
+          lcd.setCursor(12, 3);  lcd.print(dataA, DEC);
+          SolenoidAclose
+          SolenoidBopen
+          analogWrite(11,pwml);delay(500);analogWrite(11,255);delay(500);
+          SolenoidBclose
+          dataB = String(get_units_kg()+offset, DEC_POINT);
+          dataA = 1000*(dataB.toFloat());
+          if(dataA <= 6){
+            delay(2000);
+            SolenoidAclose
+            SolenoidBclose
+            analogWrite(11,0);
+            closemenu();
+            stac2 = 2;stac1 = 2;ilcd=0;VolumeA-=500;goto re;}}}
+    }
+    if(VolumeA<=500){
     while(stac1 < 1 ){
       SolenoidAopen
       dataB = String(get_units_kg()+offset, DEC_POINT);
       dataA = 1000*(dataB.toFloat());
-      lcd.setCursor(12, 2);  lcd.print(Volume);
+      lcd.setCursor(12, 2);  lcd.print(VolumeA);
       lcd.setCursor(12, 3);  lcd.print(dataA);
-      if(dataA >= Volume){stac2 = 0;}
+      if(dataA >= VolumeA){stac2 = 0;}
         while(stac2 < 1 ){
-          lcd.setCursor(12, 2);  lcd.print(Volume);
+          lcd.setCursor(12, 2);  lcd.print(VolumeA);
           lcd.setCursor(12, 3);  lcd.print(dataA, DEC);
           SolenoidAclose
           SolenoidBopen
@@ -171,6 +205,44 @@ void ActiveC() {
             analogWrite(11,0);
             closemenu();
             stac2 = 2;stac1 = 2;ilcd=0;}}}}
+  }
+void Checking() {
+    if (keymenu == '*') {//Loop Checking *
+    lcd.backlight();    statemenu = 0;    openmenu();
+    while (statemenu < 1) {
+      Serial.println("Loop Checking");
+      lcd.setCursor(0,0);       disdate();
+      lcd.setCursor(0,1);       distime();
+      lcd.setCursor(0,2);       dismany(); lcd.setCursor(11,2);lcd.print("Week = "); lcd.print(coutweek);
+      lcd.setCursor(0,3);       disvolume();
+      char fnmenu = keypad.getKey();
+      if (fnmenu == 'D') {
+        lcd.clear();ilcd=0;  //Exit Menu
+        statemenu = 2;}
+      }}
+}
+void CheckSetup(){
+  if (keymenu == '#') {//Loop Setup #
+    slectmenu = 1;
+ReEn:
+    lcd.backlight();
+    statemenu = 0;
+    openmenu();
+    while (statemenu < 1) {
+      menu();      delay(200);
+      char fnmenu = keypad.getKey();
+      if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
+        slectmenu--;}
+      if ((fnmenu == 'B')&&(slectmenu!=3)){   //Down
+        slectmenu++;}
+      if (fnmenu == 'C') {//Enter Menu
+        EnterMenu();
+        goto ReEn;}        
+      if (fnmenu == 'D') {
+        lcd.clear();ilcd=0;  //Exit Menu
+        statemenu = 2;}
+      }}  
+}
 void setup() {
   lcd.begin();Wire.begin();rtc.begin();
   lcd.backlight();
@@ -184,45 +256,11 @@ void setup() {
   SolenoidBclose
   StartOn();}
 void loop() {
-start:
   if(ilcd<=30){ilcd++;}
   if(ilcd==31){lcd.noBacklight();}
-  statemenu = 0;  into();
-  char keymenu = KP.Getkey();
+  into();
+  char keymenu = keypad.getKey();
   ActiveC();
-  if (keymenu == '*') {//Loop Checking *
-    lcd.backlight();
-    statemenu = 1;    openmenu();
-    while (statemenu == 1) {
-      Serial.println("Loop Checking");
-      lcd.setCursor(0,0);       disdate();
-      lcd.setCursor(0,1);       distime();
-      lcd.setCursor(0,2);       dismany(); lcd.setCursor(11,2);lcd.print("Day = "); lcd.print(coutday);
-      lcd.setCursor(0,3);       disvolume();
-      char fnmenu = KP.Getkey();
-      if (fnmenu == 'D') {
-        lcd.clear();ilcd=0;  //Exit Menu
-        goto start;}
-      statemenu = 1;}}
-  if (keymenu == '#') {//Loop Setup #
-    slectmenu = 1;
-ReEn:
-    lcd.backlight();
-    statemenu = 1;
-    openmenu();
-    while (statemenu == 1) {
-      menu();
-      delay(200);
-      char fnmenu = KP.Getkey();
-      if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
-        slectmenu--;}
-      if ((fnmenu == 'B')&&(slectmenu!=3)){   //Down
-        slectmenu++;}
-      if (fnmenu == 'C') {//Enter Menu
-        EnterMenu();
-        goto ReEn;}        
-      if (fnmenu == 'D') {
-        lcd.clear();ilcd=0;  //Exit Menu
-        goto start;}
-      statemenu = 1;}}
+  Checking();
+  CheckSetup();
 }
