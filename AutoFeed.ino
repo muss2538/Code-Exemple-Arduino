@@ -21,8 +21,9 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 4 );
 #define SolenoidBclose digitalWrite(10,0);
 
 unsigned int ManyShrimp = 0, Volume = 0,coutweek = 0, coutday = 0, dday = 0, mmonth = 0, yyear = 0, ho = 0, mi = 0, se = 0;
-unsigned int dataA;
+unsigned int dataA,VolumeA;
 unsigned int ilcd = 0;
+char keymenu;
 String dataB;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
@@ -109,9 +110,9 @@ void MenuSetTime() {
   while(counttimearray < 6) {
     lcd.setCursor(0, 0);      lcd.print("***Set Time***");
     lcd.setCursor(0, 1);      lcd.print("Form HH:MM:SS");
-    if (KP.Getkey() != NO_KEY){
-      lcd.setCursor(i, 2);    lcd.print(KP.Getkey());
-      timearray[counttimearray] = KP.Getkey()-'0';
+    if (keypad.getKey() != NO_KEY){
+      lcd.setCursor(i, 2);    lcd.print(keypad.getKey());
+      timearray[counttimearray] = keypad.getKey() -'0';
       counttimearray++;i++;
       delay(250);}
   }
@@ -123,9 +124,9 @@ void MenuSetManyShrimp() {
   openmenu();
   lcd.setCursor(0, 0);    lcd.print("***Many Shrimp***");
   while(countmanyarray < 4) {
-    if (KP.Getkey() != NO_KEY){
-      lcd.setCursor(i, 2);    lcd.print(KP.Getkey());
-      manyarray[countmanyarray] = KP.Getkey()-'0';
+    if (keypad.getKey() != NO_KEY){
+      lcd.setCursor(i, 2);    lcd.print(keypad.getKey());
+      manyarray[countmanyarray] = keypad.getKey() -'0';
       countmanyarray++;i++;
       delay(250);}  
   }
@@ -147,10 +148,10 @@ void ActiveC() {
       coutweek++;coutday=0;
       EEPROM.write(13,coutweek>>8);  EEPROM.write(14,coutweek&0xFF);}
     EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
-    Volume=((1+coutweek)*0.1*ManyShrimp;
+    Volume=(1+coutweek)*0.1*ManyShrimp;
     ewvol();}
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    stac1 = 0;    lcd.backlight();    openmenu();     int VolumeA = Volume; 
+    stac1 = 0;    lcd.backlight();    openmenu();      VolumeA = Volume; 
     lcd.setCursor(0, 0);  lcd.print("Week       =");lcd.print(coutweek);
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
     lcd.setCursor(0, 2);  lcd.print("Volume    =      g. ");
@@ -259,7 +260,7 @@ void loop() {
   if(ilcd<=30){ilcd++;}
   if(ilcd==31){lcd.noBacklight();}
   into();
-  char keymenu = keypad.getKey();
+  keymenu = keypad.getKey();
   ActiveC();
   Checking();
   CheckSetup();
