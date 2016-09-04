@@ -129,7 +129,7 @@ void MenuSetManyShrimp() {
     if (keypad.getKey() != NO_KEY){
       keydata = keypad.getKey();
       lcd.setCursor(i, 2);    lcd.print(keypad.getKey());
-      manyarray[countmanyarray] = keypdata -'0';
+      manyarray[countmanyarray] = keydata -'0';
       countmanyarray++;i++;
       delay(250);}  
   }
