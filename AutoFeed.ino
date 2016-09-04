@@ -28,8 +28,8 @@ int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
 byte counttimearray = 0, countmanyarray = 0, statemenu = 2, slectmenu = 1, i=0, stac1 = 2, stac2 = 2;
 
-float calibration_factor =100456.00; 
-#define zero_factor 8567295
+float calibration_factor =99755.00; 
+#define zero_factor 8563755
 #define DOUT  A3
 #define CLK   A2
 #define DEC_POINT  2
@@ -155,38 +155,44 @@ void ActiveC() {
     ewvol();}
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
     stac1 = 0;    lcd.backlight();    openmenu();      VolumeA = Volume; 
-    lcd.setCursor(0, 0);  lcd.print("Week       =");lcd.print(coutweek);
+    lcd.setCursor(0, 0);  lcd.print("Week      = ");lcd.print(coutweek);
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
     lcd.setCursor(0, 2);  lcd.print("Volume    =      g. ");
-    lcd.setCursor(0, 3);  lcd.print("WEIGHTING =      g. ");}
-re: 
-    if(VolumeA>=501){
+    lcd.setCursor(0, 3);  lcd.print("WEIGHTING =      g. ");
+
+    while(VolumeA>=501){
+      stac1=0;
       while(stac1 < 1 ){
+      Serial.println("loop1");
       SolenoidAopen
       dataB = String(get_units_kg()+offset, DEC_POINT);
       dataA = 1000*(dataB.toFloat());
       lcd.setCursor(12, 2);  lcd.print(VolumeA);
-      lcd.setCursor(12, 3);  lcd.print(dataA);
+      lcd.setCursor(12, 3);  lcd.print(dataA);lcd.print("  ");
       if(dataA >= 500){stac2 = 0;}
         while(stac2 < 1 ){
           lcd.setCursor(12, 2);  lcd.print(VolumeA);
-          lcd.setCursor(12, 3);  lcd.print(dataA, DEC);
+          lcd.setCursor(12, 3);  lcd.print(dataA, DEC);lcd.print("  ");
           SolenoidAclose
+          analogWrite(11,pwml);delay(250);
           SolenoidBopen
-          analogWrite(11,pwml);delay(500);analogWrite(11,255);delay(500);
+          analogWrite(11,255);delay(250);
           SolenoidBclose
+          delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 6){
+          if(dataA <= 10){
             delay(2000);
             SolenoidAclose
             SolenoidBclose
             analogWrite(11,0);
-            closemenu();
-            stac2 = 2;stac1 = 2;ilcd=0;VolumeA-=500;goto re;}}}
+            stac1 = 2;ilcd=0;stac2 = 2;
+            VolumeA=(VolumeA-500);}}}
     }
+    stac1 = 0;
     if(VolumeA<=500){
     while(stac1 < 1 ){
+      Serial.println("loop2");
       SolenoidAopen
       dataB = String(get_units_kg()+offset, DEC_POINT);
       dataA = 1000*(dataB.toFloat());
@@ -195,11 +201,13 @@ re:
       if(dataA >= VolumeA){stac2 = 0;}
         while(stac2 < 1 ){
           lcd.setCursor(12, 2);  lcd.print(VolumeA);
-          lcd.setCursor(12, 3);  lcd.print(dataA, DEC);
+          lcd.setCursor(12, 3);  lcd.print(dataA, DEC);lcd.print("  ");
           SolenoidAclose
+          analogWrite(11,pwml);delay(250);
           SolenoidBopen
-          analogWrite(11,pwml);delay(500);analogWrite(11,255);delay(500);
+          analogWrite(11,255);delay(250);
           SolenoidBclose
+          delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
           if(dataA <= 5){
@@ -209,8 +217,9 @@ re:
             analogWrite(11,0);
             closemenu();
             stac2 = 2;stac1 = 2;ilcd=0;}}}}
-  }
+  }}
 void setup() {
+  Serial.begin(9600);
   lcd.begin();Wire.begin();rtc.begin();
   lcd.backlight();
   lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
