@@ -8,7 +8,7 @@ char keys[4][4] = {
   {'1','2','3','A'},
   {'4','5','6','B'},
   {'7','8','9','C'},
-  {'#','0','*','D'}
+  {'*','0','#','D'}
 };
 byte rowPins[4] = {8, 7, 6, 5};
 byte colPins[4] = {4, 3, 2, 1};
@@ -24,6 +24,7 @@ unsigned int ManyShrimp = 0, Volume = 0,coutweek = 0, coutday = 0, dday = 0, mmo
 unsigned int dataA,VolumeA;
 unsigned int ilcd = 0;
 char keymenu;
+char keydata;
 String dataB;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
@@ -111,8 +112,9 @@ void MenuSetTime() {
     lcd.setCursor(0, 0);      lcd.print("***Set Time***");
     lcd.setCursor(0, 1);      lcd.print("Form HH:MM:SS");
     if (keypad.getKey() != NO_KEY){
+      keydata = keypad.getKey();
       lcd.setCursor(i, 2);    lcd.print(keypad.getKey());
-      timearray[counttimearray] = keypad.getKey() -'0';
+      timearray[counttimearray] = keydata -'0';
       counttimearray++;i++;
       delay(250);}
   }
@@ -125,8 +127,9 @@ void MenuSetManyShrimp() {
   lcd.setCursor(0, 0);    lcd.print("***Many Shrimp***");
   while(countmanyarray < 4) {
     if (keypad.getKey() != NO_KEY){
+      keydata = keypad.getKey();
       lcd.setCursor(i, 2);    lcd.print(keypad.getKey());
-      manyarray[countmanyarray] = keypad.getKey() -'0';
+      manyarray[countmanyarray] = keypdata -'0';
       countmanyarray++;i++;
       delay(250);}  
   }
@@ -207,7 +210,24 @@ re:
             closemenu();
             stac2 = 2;stac1 = 2;ilcd=0;}}}}
   }
-void Checking() {
+void setup() {
+  lcd.begin();Wire.begin();rtc.begin();
+  lcd.backlight();
+  lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
+  lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmenu();
+  closemenu();
+  scale.set_scale(calibration_factor); 
+  scale.set_offset(zero_factor);
+  pinMode(9,OUTPUT);  pinMode(10,OUTPUT);
+  SolenoidAclose
+  SolenoidBclose
+  StartOn();}
+void loop() {
+  if(ilcd<=30){ilcd++;}
+  if(ilcd==31){lcd.noBacklight();}
+  into();
+  keymenu = keypad.getKey();
+  ActiveC();
     if (keymenu == '*') {//Loop Checking *
     lcd.backlight();    statemenu = 0;    openmenu();
     while (statemenu < 1) {
@@ -221,8 +241,6 @@ void Checking() {
         lcd.clear();ilcd=0;  //Exit Menu
         statemenu = 2;}
       }}
-}
-void CheckSetup(){
   if (keymenu == '#') {//Loop Setup #
     slectmenu = 1;
 ReEn:
@@ -243,25 +261,4 @@ ReEn:
         lcd.clear();ilcd=0;  //Exit Menu
         statemenu = 2;}
       }}  
-}
-void setup() {
-  lcd.begin();Wire.begin();rtc.begin();
-  lcd.backlight();
-  lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
-  lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmenu();
-  closemenu();
-  scale.set_scale(calibration_factor); 
-  scale.set_offset(zero_factor);
-  pinMode(9,OUTPUT);  pinMode(10,OUTPUT);
-  SolenoidAclose
-  SolenoidBclose
-  StartOn();}
-void loop() {
-  if(ilcd<=30){ilcd++;}
-  if(ilcd==31){lcd.noBacklight();}
-  into();
-  keymenu = keypad.getKey();
-  ActiveC();
-  Checking();
-  CheckSetup();
 }
