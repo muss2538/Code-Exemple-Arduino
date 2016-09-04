@@ -11,7 +11,7 @@ char keys[4][4] = {
   {'*','0','#','D'}
 };
 byte rowPins[4] = {8, 7, 6, 5};
-byte colPins[4] = {4, 3, 2, 1};
+byte colPins[4] = {4, 3, 2, 13};
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 4 );
 
 #define pwml 180
@@ -23,8 +23,6 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 4 );
 unsigned int ManyShrimp = 0, Volume = 0,coutweek = 0, coutday = 0, dday = 0, mmonth = 0, yyear = 0, ho = 0, mi = 0, se = 0;
 unsigned int dataA,VolumeA;
 unsigned int ilcd = 0;
-char keymenu;
-char keydata;
 String dataB;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
@@ -61,7 +59,7 @@ void into() {
   lcd.print("  Time = "); lcd.print(now.hour(), DEC); lcd.print(':'); lcd.print(now.minute(), DEC); lcd.print(':'); lcd.print(now.second(), DEC); lcd.print(" ");
   lcd.setCursor(0, 2);
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
-  delay(1000);}
+  delay(500);}
 void ewdate() {
   EEPROM.write(3,dday);  EEPROM.write(4,mmonth);  EEPROM.write(5,yyear>>8);  EEPROM.write(6,yyear&0xFF);
   coutday=0;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
@@ -111,10 +109,11 @@ void MenuSetTime() {
   while(counttimearray < 6) {
     lcd.setCursor(0, 0);      lcd.print("***Set Time***");
     lcd.setCursor(0, 1);      lcd.print("Form HH:MM:SS");
-    if (keypad.getKey() != NO_KEY){
-      keydata = keypad.getKey();
-      lcd.setCursor(i, 2);    lcd.print(keypad.getKey());
-      timearray[counttimearray] = keydata -'0';
+    char keydata = keypad.getKey();
+    byte  ckeydata = keydata-'0';
+    if (keydata != NO_KEY){
+      lcd.setCursor(i, 2);    lcd.print(ckeydata);
+      timearray[counttimearray] = ckeydata;
       counttimearray++;i++;
       delay(250);}
   }
@@ -126,10 +125,11 @@ void MenuSetManyShrimp() {
   openmenu();
   lcd.setCursor(0, 0);    lcd.print("***Many Shrimp***");
   while(countmanyarray < 4) {
-    if (keypad.getKey() != NO_KEY){
-      keydata = keypad.getKey();
-      lcd.setCursor(i, 2);    lcd.print(keypad.getKey());
-      manyarray[countmanyarray] = keydata -'0';
+    char keydata1 = keypad.getKey();
+    byte  ckeydata1 = keydata1-'0';
+    if (keydata1 != NO_KEY){
+      lcd.setCursor(i, 2);    lcd.print(keydata1);
+      manyarray[countmanyarray] = ckeydata1;
       countmanyarray++;i++;
       delay(250);}  
   }
@@ -226,15 +226,14 @@ void loop() {
   if(ilcd<=30){ilcd++;}
   if(ilcd==31){lcd.noBacklight();}
   into();
-  keymenu = keypad.getKey();
+  char keymenu = keypad.getKey();
   ActiveC();
     if (keymenu == '*') {//Loop Checking *
     lcd.backlight();    statemenu = 0;    openmenu();
     while (statemenu < 1) {
-      Serial.println("Loop Checking");
       lcd.setCursor(0,0);       disdate();
       lcd.setCursor(0,1);       distime();
-      lcd.setCursor(0,2);       dismany(); lcd.setCursor(11,2);lcd.print("Week = "); lcd.print(coutweek);
+      lcd.setCursor(0,2);       dismany(); lcd.setCursor(12,2);lcd.print("Week= "); lcd.print(coutweek);
       lcd.setCursor(0,3);       disvolume();
       char fnmenu = keypad.getKey();
       if (fnmenu == 'D') {
@@ -248,7 +247,7 @@ ReEn:
     statemenu = 0;
     openmenu();
     while (statemenu < 1) {
-      menu();      delay(200);
+      menu();      delay(150);
       char fnmenu = keypad.getKey();
       if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
         slectmenu--;}
