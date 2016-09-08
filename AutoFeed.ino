@@ -14,7 +14,8 @@ byte rowPins[4] = {8, 7, 6, 5};
 byte colPins[4] = {4, 3, 2, 13};
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 4 );
 
-#define pwml 180
+#define pwml 0
+#define pwmh 80
 #define SolenoidAopen digitalWrite(9,1);
 #define SolenoidAclose digitalWrite(9,0);
 #define SolenoidBopen digitalWrite(10,1);
@@ -28,8 +29,8 @@ int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
 byte counttimearray = 0, countmanyarray = 0, statemenu = 2, slectmenu = 1, i=0, stac1 = 2, stac2 = 2;
 
-float calibration_factor =99755.00; 
-#define zero_factor 8563755
+float calibration_factor =100003.00; 
+#define zero_factor 8564555
 #define DOUT  A3
 #define CLK   A2
 #define DEC_POINT  2
@@ -59,7 +60,7 @@ void into() {
   lcd.print("  Time = "); lcd.print(now.hour(), DEC); lcd.print(':'); lcd.print(now.minute(), DEC); lcd.print(':'); lcd.print(now.second(), DEC); lcd.print(" ");
   lcd.setCursor(0, 2);
   lcd.print("  Date = "); lcd.print(now.day(), DEC); lcd.print('/'); lcd.print(now.month(), DEC); lcd.print('/'); lcd.print(now.year(), DEC);
-  delay(500);}
+  delay(1000);}
 void ewdate() {
   EEPROM.write(3,dday);  EEPROM.write(4,mmonth);  EEPROM.write(5,yyear>>8);  EEPROM.write(6,yyear&0xFF);
   coutday=0;EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
@@ -146,16 +147,15 @@ void EnterMenu() {
 void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == 00) && (now.minute() == 00) && (now.second() == 00)){
-    coutday++;
-    if(coutday==7) {
-      coutweek++;coutday=0;
+    coutday++;    EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
+    if((coutday%7)==0) {
+      coutweek++;
       EEPROM.write(13,coutweek>>8);  EEPROM.write(14,coutweek&0xFF);}
-    EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
     Volume=(1+coutweek)*0.1*ManyShrimp;
     ewvol();}
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
-    stac1 = 0;    lcd.backlight();    openmenu();      VolumeA = Volume; 
-    lcd.setCursor(0, 0);  lcd.print("Week      = ");lcd.print(coutweek);
+    stac1 = 0;    lcd.backlight();    openmenu();      VolumeA = Volume;
+    lcd.setCursor(0, 0);  lcd.print("Day       = ");lcd.print(coutday);
     lcd.setCursor(0, 1);  lcd.print("Many      = ");lcd.print(ManyShrimp);
     lcd.setCursor(0, 2);  lcd.print("Volume    =      g. ");
     lcd.setCursor(0, 3);  lcd.print("WEIGHTING =      g. ");
@@ -176,12 +176,12 @@ void ActiveC() {
           SolenoidAclose
           analogWrite(11,pwml);delay(250);
           SolenoidBopen
-          analogWrite(11,255);delay(250);
+          analogWrite(11,pwmh);delay(250);
           SolenoidBclose
           delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 10){
+          if(dataA <= 8){
             delay(2000);
             SolenoidAclose
             SolenoidBclose
@@ -205,12 +205,12 @@ void ActiveC() {
           SolenoidAclose
           analogWrite(11,pwml);delay(250);
           SolenoidBopen
-          analogWrite(11,255);delay(250);
+          analogWrite(11,pwmh);delay(250);
           SolenoidBclose
           delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 5){
+          if(dataA <= 8){
             delay(2000);
             SolenoidAclose
             SolenoidBclose
@@ -242,7 +242,7 @@ void loop() {
     while (statemenu < 1) {
       lcd.setCursor(0,0);       disdate();
       lcd.setCursor(0,1);       distime();
-      lcd.setCursor(0,2);       dismany(); lcd.setCursor(12,2);lcd.print("Week= "); lcd.print(coutweek);
+      lcd.setCursor(0,2);       dismany(); lcd.setCursor(12,2);lcd.print("Day= "); lcd.print(coutday);
       lcd.setCursor(0,3);       disvolume();
       char fnmenu = keypad.getKey();
       if (fnmenu == 'D') {
