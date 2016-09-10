@@ -181,7 +181,7 @@ void ActiveC() {
           delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 8){
+          if(dataA <= 20){
             delay(2000);
             SolenoidAclose
             SolenoidBclose
@@ -210,7 +210,7 @@ void ActiveC() {
           delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 8){
+          if(dataA <= 20){
             delay(2000);
             SolenoidAclose
             SolenoidBclose
