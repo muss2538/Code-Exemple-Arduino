@@ -14,12 +14,14 @@ byte rowPins[4] = {8, 7, 6, 5};
 byte colPins[4] = {4, 3, 2, 13};
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, 4, 4 );
 
-#define pwml 0
-#define pwmh 80
+#define stopweightlow 15 //น้ำหนักต่ำก่อนตัด
+#define pwml 0   //ความเร็วมอเตอร์ช้า
+#define pwmh 80  //ความเร็มมอเตอร์เร็ว
 #define SolenoidAopen digitalWrite(9,1);
 #define SolenoidAclose digitalWrite(9,0);
 #define SolenoidBopen digitalWrite(10,1);
 #define SolenoidBclose digitalWrite(10,0);
+
 
 unsigned int ManyShrimp = 0, Volume = 0,coutweek = 0, coutday = 0, dday = 0, mmonth = 0, yyear = 0, ho = 0, mi = 0, se = 0;
 unsigned int dataA,VolumeA;
@@ -27,19 +29,91 @@ unsigned int ilcd = 0;
 String dataB;
 int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
-byte counttimearray = 0, countmanyarray = 0, statemenu = 2, slectmenu = 1, i=0, stac1 = 2, stac2 = 2;
+byte counttimearray = 0, countmanyarray = 0, statemenu = 2, slectmenu = 1, i=0, stac1 = 2, stac2 = 2, stac3 = 2,stateL=3 ;
 
-float calibration_factor =100003.00; 
-#define zero_factor 8564555
-#define DOUT  A3
-#define CLK   A2
+float calibration_factor =1; 
+float real_weight = 1.000;  //น้ำหนักมาตรฐาน kg
+
+#define DOUT  A3  //ขาData Load cell
+#define CLK   A2  //ขาClk Load cell
 #define DEC_POINT  2
-float offset=0;                 float get_units_kg();
+#define STABLE  1
+float offset=0;                 
 HX711 scale(DOUT, CLK);
+
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 RTC_DS1307 rtc;
-float get_units_kg() {
-  return(scale.get_units()*0.453592);}
+
+long FindZeroFactor(){
+  lcd.setCursor(0, 0);      lcd.print("Find Zero Factor");
+  lcd.setCursor(0, 1);      lcd.print("Please wait .....");
+  scale.set_scale();
+  scale.tare(); 
+  long zero_factor = scale.read_average(20); 
+  lcd.setCursor(0, 2);lcd.print("Zero factor: ");     lcd.println(zero_factor);
+  return(zero_factor);
+}
+void FindCalibrationFactor(){
+  unsigned char flag_stable=0;
+  unsigned int decpoint=1;
+  for(unsigned char i=0;i<DEC_POINT+1;i++ )
+    decpoint = decpoint*10;
+  while(1)
+  {
+      scale.set_scale(calibration_factor); //Adjust to this calibration factor
+      lcd.setCursor(0, 0);lcd.print("Reading: ");
+      float read_weight = get_units_kg();      String data = String(read_weight, DEC_POINT);
+      lcd.print(data);      lcd.print(" kg"); 
+      lcd.print(" calibration_factor: ");      lcd.print(calibration_factor);
+      lcd.setCursor(0, 1);
+      long r_weight      = (real_weight*decpoint);      long int_read_weight = read_weight*decpoint;
+      lcd.print(r_weight);      lcd.print(" , ");      lcd.println(int_read_weight);
+      long x;
+      if(r_weight == int_read_weight)
+      {
+        flag_stable++;
+        if(flag_stable>=STABLE)
+        {
+          lcd.setCursor(0, 2);lcd.print("Calibration Factor is = ");          lcd.print(calibration_factor);
+          break;
+         }
+        }
+       if(r_weight > int_read_weight)
+          {
+            x = r_weight - int_read_weight;
+            if(x > 100)
+              calibration_factor -= 1000; 
+            else if(x > 100)
+              calibration_factor -= 10;
+            else
+              calibration_factor -= 1;
+            flag_stable=0;
+          }
+          if(r_weight < int_read_weight)
+          {
+            x =  int_read_weight-r_weight;
+            if(x > 100)
+              calibration_factor += 1000; 
+            else if(x > 10)
+              calibration_factor += 10;
+            else
+              calibration_factor += 1; 
+            flag_stable=0; 
+           }  
+  }
+}
+float get_units_kg(){
+  return(scale.get_units()*0.453592);
+}
+void ReadWeight(){
+  scale.set_scale(calibration_factor); //Adjust to this calibration factor
+  lcd.print("Reading: ");
+  String data = String(get_units_kg()+offset, DEC_POINT);
+  lcd.print(data);
+  lcd.print(" kg");
+}
+
+
 void StartOn() {
   ho = EEPROM.read(0);  mi = EEPROM.read(1);  se = EEPROM.read(2);
   dday = EEPROM.read(3);  mmonth = EEPROM.read(4);    yyear |= EEPROM.read(5)<<8;  yyear |= EEPROM.read(6)&0xFF;
@@ -89,15 +163,23 @@ void menu() {
   if (slectmenu == 1) {
     lcd.setCursor(0, 0);    lcd.print(">> Set Date");
     lcd.setCursor(0, 1);    lcd.print("   Set Time");
-    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");}
+    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");    
+    lcd.setCursor(0, 3);    lcd.print("   Set Load Cell");}
   if (slectmenu == 2) {
     lcd.setCursor(0, 0);    lcd.print("   Set Date");
     lcd.setCursor(0, 1);    lcd.print(">> Set Time");
-    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");}
+    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");
+    lcd.setCursor(0, 3);    lcd.print("   Set Load Cell");}
   if (slectmenu == 3) {
     lcd.setCursor(0, 0);    lcd.print("   Set Date");
     lcd.setCursor(0, 1);    lcd.print("   Set Time");
-    lcd.setCursor(0, 2);    lcd.print(">> Set Many Shrimp");}
+    lcd.setCursor(0, 2);    lcd.print(">> Set Many Shrimp");
+    lcd.setCursor(0, 3);    lcd.print("   Set Load Cell");}
+  if (slectmenu == 4) {
+    lcd.setCursor(0, 0);    lcd.print("   Set Date");
+    lcd.setCursor(0, 1);    lcd.print("   Set Time");
+    lcd.setCursor(0, 2);    lcd.print("   Set Many Shrimp");
+    lcd.setCursor(0, 3);    lcd.print(">> Set Load Cell");}
 }
 void MenuSetDate() {
   openmenu();
@@ -140,10 +222,47 @@ void MenuSetManyShrimp() {
   lcd.setCursor(0, 2);   dismany();
   lcd.setCursor(0, 0);   lcd.print("Many Saving");loadmenu();
   i=0; countmanyarray=0;  closemenu();}
+void MenuSetLoadCell() {
+  openmenu();
+  stac3=0;
+  while(stac3 < 1 ){
+  char keydata4 = keypad.getKey();
+  if(keydata4=='A')stateL=1;
+  if(keydata4=='B')stateL=2;   
+  if(keydata4=='C')stateL=3;
+  if(keydata4=='D')stateL=4;
+  switch(state)  {
+    case 0:
+    break;
+    case 1:
+      FindZeroFactor();
+      state=0;
+    break;
+    case 2:
+     FindCalibrationFactor();
+     state=0;
+    break;
+    case 3:
+      ReadWeight();
+      delay(150);
+    break;
+    case 4:
+      stac3=0;
+      closemenu();
+      goto endload;
+     
+    break;
+  }
+}
+endload:
+  
+}
 void EnterMenu() {
   if (slectmenu == 1) {MenuSetDate();}
   if (slectmenu == 2) {MenuSetTime();}
-  if (slectmenu == 3) {MenuSetManyShrimp();}}
+  if (slectmenu == 3) {MenuSetManyShrimp();}
+  if (slectmenu == 4) {void MenuSetLoadCell();}
+}
 void ActiveC() {
   DateTime now = rtc.now();
   if((now.hour() == 00) && (now.minute() == 00) && (now.second() == 00)){
@@ -181,7 +300,7 @@ void ActiveC() {
           delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 15){
+          if(dataA <= stopweightlow){
             delay(5000);
             SolenoidAclose
             SolenoidBclose
@@ -210,7 +329,7 @@ void ActiveC() {
           delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
-          if(dataA <= 15){
+          if(dataA <= stopweightlow){
             delay(5000);
             SolenoidAclose
             SolenoidBclose
@@ -222,6 +341,7 @@ void setup() {
   Serial.begin(9600);
   lcd.begin();Wire.begin();rtc.begin();
   lcd.backlight();
+  FindZeroFactor();
   lcd.setCursor(0, 0);  lcd.print("Deivce Power ON");
   lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmenu();
   closemenu();
@@ -237,7 +357,7 @@ void loop() {
   into();
   char keymenu = keypad.getKey();
   ActiveC();
-    if (keymenu == '*') {//Loop Checking *
+  if (keymenu == '*') {//Loop Checking *
     lcd.backlight();    statemenu = 0;    openmenu();
     while (statemenu < 1) {
       lcd.setCursor(0,0);       disdate();
@@ -260,7 +380,7 @@ ReEn:
       char fnmenu = keypad.getKey();
       if ((fnmenu == 'A')&&(slectmenu!=1)){   //UP
         slectmenu--;}
-      if ((fnmenu == 'B')&&(slectmenu!=3)){   //Down
+      if ((fnmenu == 'B')&&(slectmenu!=4)){   //Down
         slectmenu++;}
       if (fnmenu == 'C') {//Enter Menu
         EnterMenu();
