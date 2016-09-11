@@ -225,43 +225,45 @@ void MenuSetManyShrimp() {
 void MenuSetLoadCell() {
   openmenu();
   stac3=0;
-  while(stac3 < 1 ){
+  while(stac3 < 1 ) {
   char keydata4 = keypad.getKey();
-  if(keydata4=='A')stateL=1;
-  if(keydata4=='B')stateL=2;   
-  if(keydata4=='C')stateL=3;
-  if(keydata4=='D')stateL=4;
-  switch(state)  {
+  if(keydata4=='A') stateL=1;
+  if(keydata4=='B') stateL=2;   
+  if(keydata4=='C') stateL=3;
+  if(keydata4=='D') stateL=4;
+  
+  switch(stateL){
     case 0:
-    break;
+          break;
     case 1:
       FindZeroFactor();
-      state=0;
+      stateL=0;
     break;
     case 2:
      FindCalibrationFactor();
-     state=0;
+     stateL=0;
     break;
     case 3:
       ReadWeight();
       delay(150);
     break;
     case 4:
-      stac3=0;
-      closemenu();
       goto endload;
-     
     break;
   }
-}
 endload:
-  
+  stac3=2;
+  closemenu();
 }
+}
+
+  
+
 void EnterMenu() {
   if (slectmenu == 1) {MenuSetDate();}
   if (slectmenu == 2) {MenuSetTime();}
   if (slectmenu == 3) {MenuSetManyShrimp();}
-  if (slectmenu == 4) {void MenuSetLoadCell();}
+  if (slectmenu == 4) {MenuSetLoadCell();}
 }
 void ActiveC() {
   DateTime now = rtc.now();
@@ -346,7 +348,7 @@ void setup() {
   lcd.setCursor(3, 2);  lcd.print("Load Setup ");loadmenu();
   closemenu();
   scale.set_scale(calibration_factor); 
-  scale.set_offset(zero_factor);
+  //scale.set_offset(zero_factor);
   pinMode(9,OUTPUT);  pinMode(10,OUTPUT);
   SolenoidAclose
   SolenoidBclose
