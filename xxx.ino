@@ -30,14 +30,14 @@ int timearray[] = {1,8,5,0,3,0};
 int manyarray[] = {1,0,0,0};
 byte counttimearray = 0, countmanyarray = 0, statemenu = 2, slectmenu = 1, i=0, stac1 = 2, stac2 = 2, stac3 = 2,stateL=0 ;
 
-float calibration_factor =1; 
+float calibration_factor =100000.00; 
 float real_weight = 0.722;  //น้ำหนักมาตรฐาน kg
 
 #define DOUT  A3  //ขาData Load cell
 #define CLK   A2  //ขาClk Load cell
 #define DEC_POINT  2
 #define STABLE  1
-float offset=0.002;                 
+float offset=0.003;                 
 HX711 scale(DOUT, CLK);
 
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
@@ -63,10 +63,10 @@ void FindCalibrationFactor(){
       scale.set_scale(calibration_factor); //Adjust to this calibration factor
       lcd.setCursor(0, 0);lcd.print("Reading: ");
       float read_weight = get_units_kg();      String data = String(read_weight, DEC_POINT);
-      //lcd.print(data);      lcd.print(" kg"); 
       lcd.setCursor(0, 1);
       long r_weight      = (real_weight*decpoint);      long int_read_weight = read_weight*decpoint;
       lcd.print(r_weight);      lcd.print(" , ");      lcd.println(int_read_weight);
+      lcd.setCursor(9, 1);lcd.print("            ");
       long x;
       if(r_weight == int_read_weight)
       {
@@ -327,8 +327,6 @@ void ActiveC() {
           analogWrite(11,pwml);delay(250);
           SolenoidBopen
           analogWrite(11,pwmh);delay(250);
-          SolenoidBclose
-          delay(250);
           dataB = String(get_units_kg()+offset, DEC_POINT);
           dataA = 1000*(dataB.toFloat());
           if(dataA <= stopweightlow){
