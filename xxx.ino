@@ -273,9 +273,9 @@ void ActiveC() {
     coutday++;    EEPROM.write(11,coutday>>8);  EEPROM.write(12,coutday&0xFF);
     if((coutday%7)==0) {
       coutweek++;
-      EEPROM.write(13,coutweek>>8);  EEPROM.write(14,coutweek&0xFF);}
+      EEPROM.write(13,coutweek>>8);  EEPROM.write(14,coutweek&0xFF);
     Volume=(1+coutweek)*0.1*ManyShrimp;
-    ewvol();}
+    ewvol();}}
   if((now.hour() == ho) && (now.minute() == mi) && (now.second() == se)){
     stac1 = 0;    lcd.backlight();    openmenu();      VolumeA = Volume;
     lcd.setCursor(0, 0);  lcd.print("Day       = ");lcd.print(coutday);
